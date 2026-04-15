@@ -1,0 +1,9 @@
+services:
+  web-app:
+    build: .
+    container_name: bicycle-dashboard
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    env_file:
+      - ../.env

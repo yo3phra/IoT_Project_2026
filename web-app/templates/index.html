@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeloGuard</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f5f4f0; --surface: #ffffff; --border: #e2e0d8;
+    --text: #1a1a18; --muted: #7a7870; --accent: #1a6b3c;
+    --accent-light: #e8f3ed; --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+  body {
+    background: var(--bg); color: var(--text); font-family: var(--sans);
+    min-height: 100vh; max-width: 420px; margin: 0 auto;
+    display: flex; flex-direction: column;
+  }
+  header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
+  .logo span { color: var(--accent); }
+  .version { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+  main { flex: 1; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; justify-content: center; }
+  .welcome {
+    text-align: center; margin-bottom: 8px;
+  }
+  .welcome-icon { font-size: 48px; margin-bottom: 12px; }
+  .welcome h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+  .welcome p { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .mode-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px; cursor: pointer;
+    text-decoration: none; color: var(--text);
+    display: flex; align-items: center; gap: 16px;
+    transition: all 0.15s;
+  }
+  .mode-card:hover { border-color: var(--accent); background: var(--accent-light); transform: translateY(-1px); }
+  .mode-card:active { transform: scale(0.98); }
+  .mode-icon {
+    width: 56px; height: 56px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; flex-shrink: 0;
+  }
+  .mode-icon.nav { background: #e8f3ed; }
+  .mode-icon.park { background: #fee2e2; }
+  .mode-info { flex: 1; }
+  .mode-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .mode-desc { font-family: var(--mono); font-size: 11px; color: var(--muted); line-height: 1.5; }
+  .mode-arrow { font-size: 18px; color: var(--muted); }
+  .divider {
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--mono); font-size: 10px; color: var(--muted);
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Velo<span>Guard</span></div>
+  <div class="version">v0.1.0-MVP</div>
+</header>
+<main>
+  <div class="welcome">
+    <div class="welcome-icon">🚲</div>
+    <h1>Choose a mode</h1>
+    <p>Select how you want to use your bike system</p>
+  </div>
+
+  <a href="/navigation" class="mode-card">
+    <div class="mode-icon nav">🚴</div>
+    <div class="mode-info">
+      <div class="mode-title">Navigation mode</div>
+      <div class="mode-desc">Live sensor data · GPS tracking · Accelerometer readings</div>
+    </div>
+    <div class="mode-arrow">›</div>
+  </a>
+
+  <div class="divider">or</div>
+
+  <a href="/parked" class="mode-card">
+    <div class="mode-icon park">🔒</div>
+    <div class="mode-info">
+      <div class="mode-title">Parked mode</div>
+      <div class="mode-desc">Security monitoring · Theft detection · Alerts</div>
+    </div>
+    <div class="mode-arrow">›</div>
+  </a>
+</main>
+</body>
+</html>

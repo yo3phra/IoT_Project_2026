@@ -1,0 +1,9 @@
+services:
+  mqtt-bridge:
+    build: .
+    container_name: ttn-bridge
+    restart: always
+    stdin_open: true
+    tty: true
+    env_file:
+      - ../.env
