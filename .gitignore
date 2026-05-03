@@ -177,3 +177,6 @@ models/
 # Program files
 data/
 logs/
+
+passwords 
+.env
