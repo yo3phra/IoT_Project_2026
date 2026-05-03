@@ -1,0 +1,22 @@
+# Coral Face Recognition System - Dependencies
+
+# Core
+numpy>=1.20.0
+opencv-python>=4.5.0
+pillow
+
+# Encryption & Security
+cryptography>=3.4.0
+
+# ML/DL (choose one based on target hardware)
+# For Windows prototype / CPU:
+tensorflow>=2.21.0
+onnxruntime
+# For Coral TPU (mutually exclusive with tensorflow):
+# pycoral
+
+# Optional: Testing
+pytest>=6.0.0
+pytest-cov>=2.12.0
+
+
