@@ -150,7 +150,7 @@ class FaceDetector:
             (300, 300),
             [104.0, 117.0, 123.0],
             False,
-            False
+            crop=True   # crop=True to maintain aspect ratio and avoid distortion
         )
 
         self.net.setInput(blob)

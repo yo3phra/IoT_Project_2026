@@ -125,6 +125,15 @@ class AdminInterface:
             return
 
         username = self._get_input("Enter user name (e.g., John Doe): ", required=True)
+        is_valid_username = self.user_manager._is_valid_username(username)
+        while not is_valid_username:
+            self._print_error(
+                f"Invalid username. Must be {self.user_manager.config.min_username_length}-"
+                f"{self.user_manager.config.max_username_length} characters."
+            )
+            username = self._get_input("Enter user name (e.g., John Doe): ", required=True)
+            is_valid_username = self.user_manager._is_valid_username(username)
+
         if not username:
             return
 
@@ -544,7 +553,11 @@ class AdminInterface:
             # Generate embedding
             face = faces[0]
             face_crop = face.crop_from_frame(frame)
+            
             test_embedding = self.enrollment_controller.face_recognizer.generate_embedding(face_crop)
+            print(f"Backend: {self.enrollment_controller.face_recognizer.backend.model_name}")
+            print(f"Embedding shape: {test_embedding.vector.shape}, range: {test_embedding.vector.min():.3f}-{test_embedding.vector.max():.3f}")
+            
             print(f"[OK] Embedding generated: {test_embedding.dimension}D")
             print(f"     Vector sample: {test_embedding.vector[:5]}...")
 

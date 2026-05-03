@@ -96,7 +96,7 @@ class ChallengeSequence:
         challenge_types = [
             ChallengeType.HEAD_TURN_LEFT,
             ChallengeType.HEAD_TURN_RIGHT,
-            ChallengeType.BLINK,
+            ChallengeType.MOUTH_OPEN
         ]
 
         selected = random.sample(challenge_types, min(num, len(challenge_types)))

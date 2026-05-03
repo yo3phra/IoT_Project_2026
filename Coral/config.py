@@ -60,6 +60,7 @@ class FaceRecognitionConfig:
 @dataclass
 class LivenessDetectionConfig:
     """Liveness challenge settings."""
+    model_dir: str = "models"
     timeout_per_challenge_sec: int = 10
     max_attempts_per_session: int = 3
     required_head_turn_degrees: int = 15
@@ -79,7 +80,7 @@ class AuthControllerConfig:
 class EnrollmentControllerConfig:
     """Enrollment orchestration settings."""
     total_timeout_sec: int = 120  # 2 minutes to capture all embeddings
-    embeddings_per_user: int = 8  # Require 8 embeddings for robust recognition (more angles)
+    embeddings_per_user: int = 2  # Require 8 embeddings for robust recognition (more angles)
     min_frames_between_captures: int = 10  # Skip 10 frames (~667ms @ 15fps) to get varied angles
 
 

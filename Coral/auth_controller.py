@@ -314,7 +314,7 @@ class AuthenticationController:
         # Detect liveness cues
         head_pose = self.liveness_detector.detect_head_pose(face_crop)
         is_blink, blink_conf = self.liveness_detector.detect_blink(face_crop)
-        is_mouth_open, mouth_conf = self.liveness_detector.detect_mouth_movement(face_crop)
+        is_mouth_open, mouth_conf = self.liveness_detector.detect_mouth_opening(face_crop)
 
         # Validate current challenge
         challenge_type = current_challenge.type.value

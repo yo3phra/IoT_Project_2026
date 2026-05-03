@@ -312,6 +312,8 @@ class ONNXBackend(EmbeddingModelBackend):
 
             # Extract embedding
             embedding = outputs[0][0].astype(np.float32)
+            # Normalize embedding to unit length
+            embedding = embedding / np.linalg.norm(embedding)
 
             logger_face_rec.debug(f"Generated ONNX embedding: {embedding.shape}")
             return embedding
