@@ -61,7 +61,7 @@ def setup_logger(name: str, level: str = None) -> logging.Logger:
     log_dir = Path(config.logger.log_dir)
     log_dir.mkdir(parents=True, exist_ok=True)
 
-    # File handler (rotating)
+    # File handler (rotating) - ensures logs don't grow indefinitely, and sensitive data is sanitized. 
     log_file = log_dir / f"{name}.log"
     file_handler = logging.handlers.RotatingFileHandler(
         log_file,
@@ -70,7 +70,7 @@ def setup_logger(name: str, level: str = None) -> logging.Logger:
     )
     file_handler.setLevel(getattr(logging, level))
 
-    # Console handler
+    # Console handler - also sanitized. Handles console output.
     console_handler = logging.StreamHandler()
     console_handler.setLevel(getattr(logging, level))
 

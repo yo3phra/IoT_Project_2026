@@ -1,6 +1,6 @@
 """
 Embedding model abstraction - pluggable backends for face embeddings.
-Supports multiple sources: ArcFace library, TensorFlow models, etc.
+Supports multiple sources: TensorFlow models, ONNX models (needs separate implementation), etc.
 """
 
 from abc import ABC, abstractmethod
@@ -43,62 +43,35 @@ class EmbeddingModelBackend(ABC):
         """Get model backend name."""
         pass
 
-
-class ArcFaceBackend(EmbeddingModelBackend):
-    """ArcFace embedding backend - recommended default."""
-
+    @abstractmethod
     def __init__(self):
-        """Initialize ArcFace backend."""
-        self.model = None
-        self._embedding_dim = 512
+        """Initialize backend with necessary parameters."""
+        self.model_ = None
+        self._embedding_dim = None
 
+    @abstractmethod
     def load(self):
-        """Load ArcFace model."""
-        try:
-            from arcface import ArcFace
-            self.model = ArcFace.ArcFace()
-            logger_face_rec.info("ArcFace model loaded successfully")
-        except ImportError:
-            logger_face_rec.error("ArcFace library not installed. Run: pip install arcface")
-            raise
-        except Exception as e:
-            logger_face_rec.error(f"Failed to load ArcFace model: {e}")
-            raise
+        """Load model weights and initialize."""
+        pass
 
+    @abstractmethod
     def generate_embedding(self, face_frame: np.ndarray) -> np.ndarray:
         """
-        Generate embedding using ArcFace.
-
-        Args:
-            face_frame: Cropped face region (cv2 image, already aligned)
-
-        Returns:
-            512D embedding vector
+        Generate embedding placeholder - to be implemented by specific backends.
         """
-        if self.model is None:
-            raise RuntimeError("Model not loaded. Call load() first.")
-
-        try:
-            # ArcFace.calc_emb accepts cv2 images directly
-            embedding = self.model.calc_emb(face_frame)
-            # Ensure float32
-            embedding = np.array(embedding, dtype=np.float32)
-            logger_face_rec.debug(f"Generated ArcFace embedding: {embedding.shape}")
-            return embedding
-
-        except Exception as e:
-            logger_face_rec.error(f"ArcFace embedding generation failed: {e}")
-            raise
+        pass
 
     @property
+    @abstractmethod
     def embedding_dimension(self) -> int:
-        """ArcFace produces 512D embeddings."""
+        """Return embedding dimension - to be defined by specific backends."""
         return self._embedding_dim
 
     @property
+    @abstractmethod
     def model_name(self) -> str:
-        """Return backend name."""
-        return "arcface"
+        """Return model name - to be defined by specific backends."""
+        pass
 
 
 class TensorFlowBackend(EmbeddingModelBackend):
@@ -360,7 +333,7 @@ class MockBackend(EmbeddingModelBackend):
 
 
 def get_embedding_backend(
-    backend_type: str = "arcface",
+    backend_type: str = "onnx",
     model_dir: str = "models",
     runtime_config=None
 ) -> EmbeddingModelBackend:
@@ -368,16 +341,14 @@ def get_embedding_backend(
     Factory function to get embedding backend.
 
     Args:
-        backend_type: "arcface" (default), "tensorflow", "onnx", or "mock"
+        backend_type: "onnx" (default), "tensorflow", or "mock"
         model_dir: Model directory for TensorFlow/ONNX backends
         runtime_config: Runtime config for CPU/TPU detection
 
     Returns:
         EmbeddingModelBackend instance
     """
-    if backend_type == "arcface":
-        return ArcFaceBackend()
-    elif backend_type == "tensorflow":
+    if backend_type == "tensorflow":
         return TensorFlowBackend(model_dir, runtime_config)
     elif backend_type == "onnx":
         return ONNXBackend(model_dir, model_name="webface_r50.onnx")

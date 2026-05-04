@@ -7,6 +7,7 @@ import os
 from enum import Enum
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Optional
 
 
 class ExecutionMode(Enum):
@@ -51,7 +52,7 @@ class FaceRecognitionConfig:
     embedding_dim: int = 512
     confidence_threshold: float = 0.60  # Must exceed this for auth
     distance_threshold: float = 0.6  # L2 distance for matching
-    # Model backend: "arcface" (default), "tensorflow", "onnx", or "mock"
+    # Model backend: "tensorflow", "onnx"(default), or "mock"
     backend_type: str = "onnx"
     # Model will be auto-selected (CPU vs TPU)
     model_dir: str = "models"
@@ -185,6 +186,9 @@ class Config:
         if protocol := os.getenv("CLOUD_PROTOCOL"):
             self.cloud.protocol = protocol
 
+        # Azure IoT Hub
+        self._azure_connection_string = os.getenv("AZURE_IOT_CONNECTION_STRING")
+
         # Logging
         if log_level := os.getenv("LOG_LEVEL"):
             self.logger.log_level = log_level
@@ -193,6 +197,11 @@ class Config:
         if model_dir := os.getenv("MODEL_DIR"):
             self.face_detection.model_dir = model_dir
             self.face_recognition.model_dir = model_dir
+
+    @property
+    def azure_connection_string(self) -> Optional[str]:
+        """Get Azure IoT Hub connection string from environment."""
+        return getattr(self, '_azure_connection_string', None)
 
     @property
     def is_coral(self) -> bool:
