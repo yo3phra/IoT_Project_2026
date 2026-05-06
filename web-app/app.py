@@ -22,6 +22,8 @@ def get_simulated_data():
     z = round(9.81 + random.uniform(-0.1, 0.1), 3)
     return {"x": x, "y": y, "z": z, "timestamp": time.strftime("%H:%M:%S"), "simulated": True}
 
+
+    
 def get_latest_data():
     if not COSMOS_OK:
         return get_simulated_data()

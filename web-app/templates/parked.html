@@ -3,93 +3,138 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VeloGuard — Parked</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<title>ZOE — Parked</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg: #f5f4f0; --surface: #ffffff; --border: #e2e0d8;
-    --text: #1a1a18; --muted: #7a7870; --accent: #1a6b3c;
-    --accent-light: #e8f3ed; --warn: #b45309; --warn-light: #fef3c7;
-    --danger: #b91c1c; --danger-light: #fee2e2;
-    --mono: 'IBM Plex Mono', monospace; --sans: 'IBM Plex Sans', sans-serif;
+    --bg: #0a0c10; --surface: #111318; --surface2: #181c24;
+    --border: rgba(255,255,255,0.07); --text: #e8eaf0; --muted: #5a6070;
+    --accent: #00d4ff; --accent2: #7b61ff; --danger: #ff4757; --warn: #ffa502;
+    --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
   }
-  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; max-width: 420px; margin: 0 auto; display: flex; flex-direction: column; }
-  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
-  .logo { font-size: 18px; font-weight: 600; }
-  .logo span { color: var(--accent); }
-  .back-btn { font-family: var(--mono); font-size: 11px; color: var(--muted); text-decoration: none; display: flex; align-items: center; gap: 4px; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; max-width: 460px; margin: 0 auto; display: flex; flex-direction: column; position: relative; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
+
+  header { padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; background: rgba(10,12,16,0.95); backdrop-filter: blur(12px); }
+  .logo { font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; }
+  .logo span { color: var(--accent2); }
+  .back-btn { font-family: var(--mono); font-size: 11px; color: var(--muted); text-decoration: none; display: flex; align-items: center; gap: 6px; transition: color 0.15s; }
   .back-btn:hover { color: var(--accent); }
-  .system-badge { font-family: var(--mono); font-size: 10px; padding: 4px 10px; border-radius: 20px; border: 1px solid; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px; transition: all 0.3s; }
-  .system-badge.safe { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
-  .system-badge.alert { border-color: var(--warn); color: var(--warn); background: var(--warn-light); }
-  .system-badge.danger { border-color: var(--danger); color: var(--danger); background: var(--danger-light); }
-  .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: blink 1.5s ease-in-out infinite; }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-  main { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-  .card-header { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-  .card-title { font-family: var(--mono); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
-  .status-big { padding: 20px 16px; display: flex; align-items: center; gap: 16px; }
-  .status-icon { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; transition: background 0.3s; }
-  .status-icon.safe { background: var(--accent-light); }
-  .status-icon.alert { background: var(--warn-light); }
-  .status-icon.danger { background: var(--danger-light); }
-  .status-label { font-size: 20px; font-weight: 600; margin-bottom: 2px; }
-  .status-sub { font-family: var(--mono); font-size: 11px; color: var(--muted); }
-  .accel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .axis-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 10px; text-align: center; }
-  .axis-label { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 6px; }
-  .axis-value { font-family: var(--mono); font-size: 22px; font-weight: 500; line-height: 1; transition: color 0.3s; }
+  .back-btn svg { width: 14px; height: 14px; }
+
+  .status-pill { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; border: 1px solid; display: flex; align-items: center; gap: 6px; transition: all 0.3s; }
+  .status-pill.secure { border-color: rgba(0,212,255,0.3); color: var(--accent); background: rgba(0,212,255,0.06); }
+  .status-pill.alert { border-color: rgba(255,165,2,0.4); color: var(--warn); background: rgba(255,165,2,0.08); }
+  .status-pill.danger { border-color: rgba(255,71,87,0.4); color: var(--danger); background: rgba(255,71,87,0.08); }
+  .pulse { width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: pulse 1.5s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  main { flex: 1; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; position: relative; z-index: 10; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; transition: border-color 0.3s; }
+  .card.alert-active { border-color: rgba(255,165,2,0.3); }
+  .card.danger-active { border-color: rgba(255,71,87,0.3); }
+  .card-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .card-title { font-family: var(--mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; }
+  .card-body { padding: 18px; }
+  .live-tag { font-family: var(--mono); font-size: 9px; color: var(--accent); display: flex; align-items: center; gap: 5px; letter-spacing: 1px; }
+  .live-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: pulse 1s ease-in-out infinite; }
+
+  /* Status hero */
+  .status-hero { padding: 22px 18px; display: flex; align-items: center; gap: 18px; }
+  .status-ring { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid; flex-shrink: 0; transition: all 0.3s; position: relative; }
+  .status-ring.secure { border-color: var(--accent); background: rgba(0,212,255,0.06); }
+  .status-ring.alert { border-color: var(--warn); background: rgba(255,165,2,0.08); }
+  .status-ring.danger { border-color: var(--danger); background: rgba(255,71,87,0.08); animation: danger-pulse 1s ease-in-out infinite; }
+  @keyframes danger-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,71,87,0.3)} 50%{box-shadow:0 0 0 10px rgba(255,71,87,0)} }
+  .status-ring svg { width: 26px; height: 26px; transition: all 0.3s; }
+  .status-ring.secure svg { stroke: var(--accent); }
+  .status-ring.alert svg { stroke: var(--warn); }
+  .status-ring.danger svg { stroke: var(--danger); }
+  .status-info { flex: 1; }
+  .status-label { font-size: 20px; font-weight: 600; letter-spacing: -0.3px; margin-bottom: 4px; transition: color 0.3s; }
+  .status-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); line-height: 1.6; }
+
+  /* Accel grid */
+  .accel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .axis-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 10px; text-align: center; }
+  .axis-label { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-bottom: 8px; letter-spacing: 1px; }
+  .axis-value { font-family: var(--mono); font-size: 24px; font-weight: 500; line-height: 1; transition: color 0.3s; }
   .axis-value.normal { color: var(--text); } .axis-value.warn { color: var(--warn); } .axis-value.danger { color: var(--danger); }
-  .axis-unit { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 2px; }
-  .threshold-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: 13px; }
-  .threshold-row:last-child { border-bottom: none; }
-  .threshold-name { color: var(--muted); font-family: var(--mono); font-size: 11px; }
-  .threshold-val { font-family: var(--mono); font-size: 12px; font-weight: 500; }
-  .alert-list { display: flex; flex-direction: column; gap: 8px; }
-  .alert-item { border-radius: 8px; padding: 10px 12px; border: 1px solid; display: flex; align-items: flex-start; gap: 10px; }
-  .alert-item.high { border-color: #fca5a5; background: var(--danger-light); }
-  .alert-item.medium { border-color: #fcd34d; background: var(--warn-light); }
-  .alert-item.info { border-color: #93c5fd; background: #eff6ff; }
-  .alert-msg { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
-  .alert-time { font-family: var(--mono); font-size: 10px; color: var(--muted); }
-  .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .btn { padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.15s; }
-  .btn:hover { background: var(--bg); }
-  .btn.primary { background: var(--accent); color: white; border-color: var(--accent); }
-  .btn.primary:hover { background: #155c32; }
-  .btn.danger-btn { background: var(--danger); color: white; border-color: var(--danger); }
-  .bar-wrap { display: flex; align-items: flex-end; gap: 3px; height: 60px; margin-top: 12px; padding: 0 4px; }
+  .axis-unit { font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 4px; }
+
+  /* Bars */
+  .bar-wrap { display: flex; align-items: flex-end; gap: 3px; height: 64px; margin-top: 14px; }
   .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; }
-  .bar { width: 100%; border-radius: 3px 3px 0 0; transition: height 0.4s ease; min-height: 2px; }
-  .bar.x { background: #1a6b3c; } .bar.y { background: #2563eb; } .bar.z { background: #7c3aed; }
-  .bar-tick { font-family: var(--mono); font-size: 8px; color: var(--muted); white-space: nowrap; }
-  .bar-legend { display: flex; gap: 12px; margin-top: 8px; justify-content: center; }
-  .legend-item { display: flex; align-items: center; gap: 4px; font-family: var(--mono); font-size: 10px; color: var(--muted); }
-  .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
-  .live-indicator { display: flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 10px; color: var(--muted); }
-  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: blink 1s ease-in-out infinite; }
+  .bar { width: 100%; border-radius: 2px 2px 0 0; transition: height 0.4s ease; min-height: 2px; }
+  .bar.x { background: var(--accent); opacity: 0.8; } .bar.y { background: var(--accent2); opacity: 0.8; } .bar.z { background: #00ff88; opacity: 0.6; }
+  .bar-tick { font-family: var(--mono); font-size: 8px; color: var(--muted); }
+  .bar-legend { display: flex; gap: 16px; margin-top: 10px; justify-content: center; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 1px; }
+  .legend-dot { width: 8px; height: 3px; border-radius: 2px; }
+
+  /* Threshold table */
+  .thresh-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 18px; border-bottom: 1px solid var(--border); }
+  .thresh-row:last-child { border-bottom: none; }
+  .thresh-name { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .thresh-val { font-family: var(--mono); font-size: 12px; color: var(--text); }
+
+  /* Alerts */
+  .alert-list { display: flex; flex-direction: column; gap: 8px; }
+  .alert-item { border-radius: 8px; padding: 10px 14px; border: 1px solid; }
+  .alert-item.high { border-color: rgba(255,71,87,0.3); background: rgba(255,71,87,0.06); }
+  .alert-item.medium { border-color: rgba(255,165,2,0.3); background: rgba(255,165,2,0.06); }
+  .alert-item.info { border-color: rgba(0,212,255,0.2); background: rgba(0,212,255,0.04); }
+  .alert-msg { font-size: 12px; font-weight: 500; margin-bottom: 3px; }
+  .alert-time { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+  .alert-count { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+  .no-alerts { font-family: var(--mono); font-size: 11px; color: var(--muted); text-align: center; padding: 14px 0; }
+
+  /* ML card */
+  .ml-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 18px; border-bottom: 1px solid var(--border); }
+  .ml-row:last-child { border-bottom: none; }
+  .ml-name { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .ml-val { font-family: var(--mono); font-size: 12px; }
+  .ml-val.ok { color: var(--accent); }
+  .ml-val.warn { color: var(--warn); }
+  .ml-val.danger { color: var(--danger); }
+  .ml-val.offline { color: var(--muted); }
+
+  /* Action buttons */
+  .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .btn { padding: 13px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); font-family: var(--mono); font-size: 11px; font-weight: 500; cursor: pointer; color: var(--text); letter-spacing: 1px; transition: all 0.15s; }
+  .btn:hover { background: var(--surface2); border-color: var(--muted); }
+  .btn.primary { background: rgba(123,97,255,0.1); border-color: rgba(123,97,255,0.3); color: var(--accent2); }
+  .btn.primary:hover { background: rgba(123,97,255,0.15); }
 </style>
 </head>
 <body>
 <header>
-  <a href="/" class="back-btn">‹ Back</a>
-  <div class="logo">Velo<span>Guard</span></div>
-  <div class="system-badge safe" id="systemBadge">
-    <div class="badge-dot"></div>
-    <span id="badgeText">SECURE</span>
+  <a href="/" class="back-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m7-7-7 7 7 7"/></svg>
+    Back
+  </a>
+  <div class="logo">ZOE <span>Sec</span></div>
+  <div class="status-pill secure" id="statusPill">
+    <div class="pulse"></div>
+    <span id="pillText">Secure</span>
   </div>
 </header>
+
 <main>
 
-  <!-- Status -->
-  <div class="card">
-    <div class="status-big">
-      <div class="status-icon safe" id="statusIcon">🔒</div>
-      <div>
+  <!-- Status hero -->
+  <div class="card" id="statusCard">
+    <div class="status-hero">
+      <div class="status-ring secure" id="statusRing">
+        <svg id="statusIcon" viewBox="0 0 24 24" fill="none" stroke-width="1.5">
+          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+      <div class="status-info">
         <div class="status-label" id="statusLabel">Bike secured</div>
-        <div class="status-sub" id="statusSub">Monitoring active · last update <span id="lastUpdate">—</span></div>
+        <div class="status-sub">Monitoring active · Last update: <span id="lastUpdate">—</span></div>
       </div>
     </div>
   </div>
@@ -98,71 +143,81 @@
   <div class="card">
     <div class="card-header">
       <span class="card-title">Accelerometer</span>
-      <div class="live-indicator"><div class="live-dot"></div> LIVE</div>
+      <div class="live-tag"><div class="live-dot"></div> Live</div>
     </div>
     <div class="card-body">
       <div class="accel-grid">
         <div class="axis-card">
-          <div class="axis-label">X axis</div>
+          <div class="axis-label">X — AXIS</div>
           <div class="axis-value normal" id="valX">—</div>
           <div class="axis-unit">m/s²</div>
         </div>
         <div class="axis-card">
-          <div class="axis-label">Y axis</div>
+          <div class="axis-label">Y — AXIS</div>
           <div class="axis-value normal" id="valY">—</div>
           <div class="axis-unit">m/s²</div>
         </div>
         <div class="axis-card">
-          <div class="axis-label">Z axis</div>
+          <div class="axis-label">Z — AXIS</div>
           <div class="axis-value normal" id="valZ">—</div>
           <div class="axis-unit">m/s²</div>
         </div>
       </div>
       <div class="bar-wrap" id="barWrap"></div>
       <div class="bar-legend">
-        <div class="legend-item"><div class="legend-dot" style="background:#1a6b3c"></div> X</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#2563eb"></div> Y</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div> Z</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> X</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--accent2)"></div> Y</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#00ff88"></div> Z</div>
       </div>
     </div>
   </div>
 
   <!-- Thresholds -->
   <div class="card">
-    <div class="card-header"><span class="card-title">Detection thresholds</span></div>
-    <div class="threshold-row"><span class="threshold-name">Movement alert</span><span class="threshold-val">± 1.5 m/s²</span></div>
-    <div class="threshold-row"><span class="threshold-name">Theft trigger</span><span class="threshold-val">± 3.0 m/s²</span></div>
-    <div class="threshold-row"><span class="threshold-name">Sample rate</span><span class="threshold-val">1 Hz</span></div>
+    <div class="card-header"><span class="card-title">Detection Thresholds</span></div>
+    <div class="thresh-row"><span class="thresh-name">Movement alert</span><span class="thresh-val">± 1.5 m/s²</span></div>
+    <div class="thresh-row"><span class="thresh-name">Theft trigger</span><span class="thresh-val">± 3.0 m/s²</span></div>
+    <div class="thresh-row"><span class="thresh-name">Sample rate</span><span class="thresh-val">1 Hz</span></div>
+  </div>
+
+  <!-- ML / Face Recognition -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Face Recognition — Coral</span>
+      <div class="live-tag"><div class="live-dot"></div> ML</div>
+    </div>
+    <div class="ml-row"><span class="ml-name">Status</span><span class="ml-val offline" id="mlStatus">Offline</span></div>
+    <div class="ml-row"><span class="ml-name">Confidence</span><span class="ml-val" id="mlConfidence">—</span></div>
+    <div class="ml-row"><span class="ml-name">User detected</span><span class="ml-val" id="mlUser">—</span></div>
+    <div class="ml-row"><span class="ml-name">Model</span><span class="ml-val ok">ONNX · webface_r50</span></div>
   </div>
 
   <!-- Alerts -->
   <div class="card">
     <div class="card-header">
-      <span class="card-title">Recent alerts</span>
-      <span style="font-family:var(--mono);font-size:10px;color:var(--muted)" id="alertCount">0 events</span>
+      <span class="card-title">Event Log</span>
+      <span class="alert-count" id="alertCount">0 events</span>
     </div>
     <div class="card-body">
       <div class="alert-list" id="alertList">
-        <div style="font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;padding:12px 0">No alerts — bike is secure</div>
+        <div class="no-alerts">No alerts — system secure</div>
       </div>
     </div>
   </div>
 
   <!-- Actions -->
   <div class="action-row">
-    <button class="btn" onclick="simulateAlert()">⚡ Simulate alert</button>
-    <button class="btn primary" onclick="resetStatus()">🔒 Reset security</button>
+    <button class="btn" onclick="simulateAlert()">Simulate Alert</button>
+    <button class="btn primary" onclick="resetStatus()">Reset Security</button>
   </div>
 
 </main>
 
 <script>
-  const ALERT_THRESH = 1.5;
-  const DANGER_THRESH = 3.0;
-  let currentStatus = 'safe';
-  let alerts = [];
-  let history = [];
-  const MAX_BARS = 12;
+  const ALERT_THRESH = 1.5, DANGER_THRESH = 3.0;
+  let currentStatus = 'secure';
+  let alerts = [], history = [];
+  const MAX_BARS = 14;
 
   async function fetchLatest() {
     try {
@@ -179,6 +234,33 @@
       const data = await res.json();
       history = data.slice(0, MAX_BARS).reverse();
       renderBars();
+    } catch(e) {}
+  }
+
+  async function fetchML() {
+    try {
+      const res = await fetch('/api/ml');
+      const d = await res.json();
+      const statusEl = document.getElementById('mlStatus');
+      const conf = document.getElementById('mlConfidence');
+      const user = document.getElementById('mlUser');
+
+      if (d.status === 'offline') {
+        statusEl.textContent = 'Offline'; statusEl.className = 'ml-val offline';
+        conf.textContent = '—'; user.textContent = '—';
+      } else if (d.status === 'authorized') {
+        statusEl.textContent = 'Authorized'; statusEl.className = 'ml-val ok';
+        conf.textContent = d.confidence ? (d.confidence * 100).toFixed(0) + '%' : '—';
+        user.textContent = d.user || 'Known user';
+      } else {
+        statusEl.textContent = 'Unauthorized'; statusEl.className = 'ml-val danger';
+        conf.textContent = d.confidence ? (d.confidence * 100).toFixed(0) + '%' : '—';
+        user.textContent = 'Unknown';
+        if (currentStatus === 'secure') {
+          setStatus('danger');
+          addAlert('Unauthorized face detected by Coral ML', 'high');
+        }
+      }
     } catch(e) {}
   }
 
@@ -205,37 +287,34 @@
   }
 
   function checkThresholds(d) {
-    const x = parseFloat(d.x) || 0;
-    const y = parseFloat(d.y) || 0;
+    const x = parseFloat(d.x) || 0, y = parseFloat(d.y) || 0;
     const mag = Math.sqrt(x**2 + y**2);
-    if (currentStatus === 'safe') {
-      if (mag > DANGER_THRESH) setStatus('danger');
-      else if (mag > ALERT_THRESH) setStatus('alert');
+    if (currentStatus === 'secure') {
+      if (mag > DANGER_THRESH) { setStatus('danger'); addAlert('Sustained movement — theft likely', 'high'); }
+      else if (mag > ALERT_THRESH) { setStatus('alert'); addAlert('Movement detected on X/Y axis', 'medium'); }
     }
   }
 
   function setStatus(s) {
     currentStatus = s;
-    const badge = document.getElementById('systemBadge');
-    const icon = document.getElementById('statusIcon');
+    const pill = document.getElementById('statusPill');
+    const ring = document.getElementById('statusRing');
     const label = document.getElementById('statusLabel');
-    const sub = document.getElementById('statusSub');
-    badge.className = 'system-badge ' + s;
-    icon.className = 'status-icon ' + s;
-    if (s === 'safe') {
-      document.getElementById('badgeText').textContent = 'SECURE';
-      icon.textContent = '🔒'; label.textContent = 'Bike secured';
-      sub.innerHTML = 'Monitoring active · last update <span id="lastUpdate">—</span>';
+    const pillText = document.getElementById('pillText');
+    const icon = document.getElementById('statusIcon');
+
+    pill.className = 'status-pill ' + (s === 'secure' ? 'secure' : s === 'alert' ? 'alert' : 'danger');
+    ring.className = 'status-ring ' + s;
+
+    if (s === 'secure') {
+      pillText.textContent = 'Secure'; label.textContent = 'Bike secured';
+      icon.innerHTML = '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>';
     } else if (s === 'alert') {
-      document.getElementById('badgeText').textContent = 'ALERT';
-      icon.textContent = '⚠️'; label.textContent = 'Movement detected';
-      sub.innerHTML = 'Camera analysis triggered · <span id="lastUpdate">—</span>';
-      addAlert('⚠️ Movement detected on X/Y axis', 'medium');
-    } else if (s === 'danger') {
-      document.getElementById('badgeText').textContent = 'THEFT';
-      icon.textContent = '🚨'; label.textContent = 'Possible theft!';
-      sub.innerHTML = 'Owner notified · <span id="lastUpdate">—</span>';
-      addAlert('🚨 Suspicious activity — possible theft', 'high');
+      pillText.textContent = 'Alert'; label.textContent = 'Movement detected';
+      icon.innerHTML = '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>';
+    } else {
+      pillText.textContent = 'Theft'; label.textContent = 'Possible theft detected';
+      icon.innerHTML = '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
     }
   }
 
@@ -252,56 +331,46 @@
   function renderAlerts() {
     const list = document.getElementById('alertList');
     document.getElementById('alertCount').textContent = alerts.length + ' event' + (alerts.length !== 1 ? 's' : '');
-    if (alerts.length === 0) {
-      list.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;padding:12px 0">No alerts — bike is secure</div>';
-      return;
-    }
+    if (!alerts.length) { list.innerHTML = '<div class="no-alerts">No alerts — system secure</div>'; return; }
     list.innerHTML = alerts.map(a => `
       <div class="alert-item ${a.level}">
-        <div>
-          <div class="alert-msg">${a.msg}</div>
-          <div class="alert-time">${a.time}</div>
-        </div>
+        <div class="alert-msg">${a.msg}</div>
+        <div class="alert-time">${a.time}</div>
       </div>`).join('');
   }
 
   function simulateAlert() {
-    setStatus('alert');
-    setTimeout(() => { if (currentStatus === 'alert') setStatus('danger'); }, 3000);
+    setStatus('alert'); addAlert('Simulated movement event', 'medium');
+    setTimeout(() => { if (currentStatus === 'alert') { setStatus('danger'); addAlert('Simulated sustained movement', 'high'); } }, 3000);
   }
 
   function resetStatus() {
-    currentStatus = 'safe';
-    setStatus('safe');
-    addAlert('✅ System reset — monitoring resumed', 'info');
+    currentStatus = 'secure'; setStatus('secure');
+    addAlert('System reset — monitoring resumed', 'info');
   }
 
   function renderBars() {
     const wrap = document.getElementById('barWrap');
     wrap.innerHTML = '';
     history.forEach((d, i) => {
-      const col = document.createElement('div');
-      col.className = 'bar-col';
+      const col = document.createElement('div'); col.className = 'bar-col';
       ['x','y','z'].forEach(axis => {
-        const bar = document.createElement('div');
-        bar.className = 'bar ' + axis;
+        const bar = document.createElement('div'); bar.className = 'bar ' + axis;
         const pct = Math.min(Math.abs(parseFloat(d[axis]) || 0) / 5, 1);
-        bar.style.height = Math.max(pct * 52, 2) + 'px';
+        bar.style.height = Math.max(pct * 56, 2) + 'px';
         col.appendChild(bar);
       });
       if (i === history.length - 1) {
-        const tick = document.createElement('div');
-        tick.className = 'bar-tick'; tick.textContent = 'now';
-        col.appendChild(tick);
+        const tick = document.createElement('div'); tick.className = 'bar-tick'; tick.textContent = 'now'; col.appendChild(tick);
       }
       wrap.appendChild(col);
     });
   }
 
-  fetchLatest();
-  fetchHistory();
+  fetchLatest(); fetchHistory(); fetchML();
   setInterval(fetchLatest, 3000);
   setInterval(fetchHistory, 10000);
+  setInterval(fetchML, 5000);
 </script>
 </body>
 </html>
