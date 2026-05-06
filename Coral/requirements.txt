@@ -15,8 +15,15 @@ onnxruntime
 # For Coral TPU (mutually exclusive with tensorflow):
 # pycoral
 
+# additional face data processing (liveness checks)
+mediapipe
+
 # Optional: Testing
 pytest>=6.0.0
 pytest-cov>=2.12.0
+
+# Cloud connection
+azure-iot-device
+
 
 

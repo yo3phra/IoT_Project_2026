@@ -24,6 +24,7 @@ try:
     from user_manager import UserManager
     from enrollment_controller import EnrollmentController, EnrollmentResult
     from auth_controller import AuthenticationController, AuthenticationResult
+    from cloud_signaling_interface import CloudSignalingInterface
     from camera_display import CameraDisplay
 except ImportError as e:
     print("\n" + "="*70)
@@ -61,9 +62,14 @@ class AdminInterface:
             embedding_store=self.embedding_store,
             mock_mode=mock_mode
         )
+
+        # Initialize cloud signaling
+        self.cloud_signaling = CloudSignalingInterface(mock_mode=mock_mode)
+
         self.auth_controller = AuthenticationController(
             embedding_store=self.embedding_store,
-            mock_mode=mock_mode
+            mock_mode=mock_mode,
+            cloud_signaling=self.cloud_signaling
         )
         self.camera = get_camera(mock=mock_mode)
 

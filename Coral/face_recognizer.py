@@ -70,7 +70,7 @@ class FaceEmbedding:
 class FaceRecognizer:
     """
     Face embedding generator and similarity matcher.
-    Uses pluggable embedding backends (ArcFace, TensorFlow, etc.)
+    Uses pluggable embedding backends (TensorFlow, onnx, etc.)
     """
 
     def __init__(self, backend_type: str = None):
@@ -78,7 +78,7 @@ class FaceRecognizer:
         Initialize face recognizer.
 
         Args:
-            backend_type: Embedding backend type ("arcface", "tensorflow", "mock").
+            backend_type: Embedding backend type ("onnx", "tensorflow", "mock").
                          If None, uses config.face_recognition.backend_type
         """
         self.config = get_config().face_recognition
@@ -191,7 +191,7 @@ def get_face_recognizer(mock: bool = False, backend_type: str = None) -> FaceRec
 
     Args:
         mock: Force mock mode for testing
-        backend_type: Override backend type ("arcface", "tensorflow", "mock")
+        backend_type: Override backend type ("onnx", "tensorflow", "mock")
 
     Returns:
         FaceRecognizer instance
