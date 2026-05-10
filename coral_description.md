@@ -41,13 +41,14 @@ Physical bike locks require on-device authentication when cloud connectivity is 
 │  │  Output: Auth result + cloud telemetry                │  │
 │  └──────────────────────────────────────────────────────────┘  │
 │                                                                 │
-│  CloudInterface: Azure IoT Hub integration (one-way telemetry) │
-│  └─ Sends: auth_progress, auth_result (NO image data)         │
+│  CloudInterface: Azure IoT Hub integration (bidirectional)     │
+│  ├─ Sends: auth_progress, auth_result (D2C telemetry)         │
+│  └─ Receives: Requests for auth_result & image retrieval      │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
      ↓
   Azure IoT Hub ←→ Cloud Backend (Fleet Management)
-     (Telemetry only; NO commands trigger Coral auth)
+     (Coral responds to data queries; NO commands trigger auth)
 ```
 
 ### Core Modules
@@ -68,8 +69,12 @@ Physical bike locks require on-device authentication when cloud connectivity is 
 | **bridge_api.py** | Flask REST API for external image/alert integration |
 | **admin_interface.py** | CLI for enrollment, testing, user management |
 
-### No Direct Cloud-to-Coral Commands
-By design, **Coral does NOT receive authentication commands from cloud**. Authentication is triggered only by local physical button press or Flask API call. Cloud backend coordinates with mobile app and PyTrack; Coral operates independently for offline resilience.
+### Cloud-to-Coral Communication (Limited Scope)
+By design, **Coral does NOT receive authentication trigger commands from cloud**—authentication is initiated only by local physical button press or Flask API call. However, Coral **responds to cloud data-retrieval requests**:
+- **Request: Auth Result Confirmation**: Cloud queries Coral for latest auth result (user_id, confidence, timestamp) for confirmation and additional data sync with fleet backend
+- **Request: Auth Image Retrieval** (future): Cloud requests latest captured image from last auth session for fleet monitoring/review (image saving not yet implemented)
+
+This read-only request pattern maintains local auth independence while enabling cloud-side audit and fleet-wide monitoring. Coral operates independently for offline resilience; cloud backend coordinates with mobile app and PyTrack.
 
 ## 3. Machine Learning Models & Specifications
 
@@ -179,7 +184,7 @@ By design, **Coral does NOT receive authentication commands from cloud**. Authen
 ## 6. Integration Points
 
 - **PyTrack** (Accelerometer/GPS): Transmits location and motion profile; Coral biometric result logged by cloud backend
-- **Azure IoT Hub**: Coral sends telemetry; receives no auth commands
+- **Azure IoT Hub**: Coral sends telemetry (auth_progress, auth_result); receives data-retrieval requests (latest auth result confirmation, image retrieval for future)
 - **Flask Web App**: Cloud backend queries biometric results via Azure; displays user unlock events on dashboard
 - **Mobile App**: Authenticated users unlock via cloud (phone trust token); does not require or trigger Coral auth
 - **Bridge API** (bridge_api.py): Local Flask app: /alert endpoint for auth triggering; /result for latest auth status
