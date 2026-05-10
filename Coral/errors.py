@@ -38,11 +38,6 @@ class StorageError(BiometricSystemError):
     pass
 
 
-class PyTrackError(BiometricSystemError):
-    """PyTrack communication errors."""
-    pass
-
-
 class CloudError(BiometricSystemError):
     """Cloud backend communication errors."""
     pass

@@ -24,7 +24,7 @@ try:
     from user_manager import UserManager
     from enrollment_controller import EnrollmentController, EnrollmentResult
     from auth_controller import AuthenticationController, AuthenticationResult
-    from cloud_signaling_interface import CloudSignalingInterface
+    from cloud_signaling_interface import CloudInterface
     from camera_display import CameraDisplay
 except ImportError as e:
     print("\n" + "="*70)
@@ -63,14 +63,11 @@ class AdminInterface:
             mock_mode=mock_mode
         )
 
-        # Initialize cloud signaling
-        self.cloud_signaling = CloudSignalingInterface(mock_mode=mock_mode)
-
         self.auth_controller = AuthenticationController(
             embedding_store=self.embedding_store,
-            mock_mode=mock_mode,
-            cloud_signaling=self.cloud_signaling
+            mock_mode=mock_mode
         )
+        self.cloud_interface = CloudInterface(mock_mode=mock_mode)
         self.camera = get_camera(mock=mock_mode)
 
         logger_admin.info("Admin interface initialized")
@@ -251,7 +248,7 @@ class AdminInterface:
                     self._print_error(f"\nEnrollment failed: {status['error_code']}")
                     break
 
-                time.sleep(0.05)
+                time.sleep(1.0 / get_config().camera.fps)
 
         except KeyboardInterrupt:
             self._print_warning("\nEnrollment interrupted by user.")
@@ -411,7 +408,7 @@ class AdminInterface:
                     break
 
                 # Continue processing frames for "in_progress" state
-                time.sleep(0.05)
+                time.sleep(1.0 / get_config().camera.fps)
 
         except KeyboardInterrupt:
             self._print_warning("\nAuthentication interrupted by user.")

@@ -103,7 +103,6 @@ logger_auth = setup_logger("auth_controller")
 logger_enroll = setup_logger("enrollment_controller")
 logger_embed = setup_logger("embedding_store")
 logger_user = setup_logger("user_manager")
-logger_pytrack = setup_logger("pytrack_interface")
 logger_cloud = setup_logger("cloud_interface")
 logger_admin = setup_logger("admin_interface")
 

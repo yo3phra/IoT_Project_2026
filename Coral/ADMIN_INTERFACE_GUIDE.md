@@ -185,48 +185,27 @@ Display table of all users:
   - Creation date
 ```
 
-### 5. Authentication Activation Triggers
+### 5. Authentication Activation
 
-**Architectural Distinction: Coral is NOT contacted by app**
+**Coral Authentication Trigger:**
 
-Coral has no direct connection to the mobile app. Three ways a Coral auth session activates:
+Authentication starts ONLY via local physical button press at the bike. Coral operates in idle mode until activated locally.
 
-1. **App-Authenticated Users (NO Coral Biometric Auth)**
-   - User logs into app on phone (app authentication system)
-   - Phone is trusted device (Cloud recognizes authenticated session)
-   - Cloud backend marks unlock status as authorized in database
-   - Bike unlocks immediately via cloud command
-   - **Coral DOES NOT receive any message** (remains in idle mode)
-   - No biometric authentication needed
-   - Fastest unlock path (instant if network available)
-   
-2. **Physical Button Press on Coral**
-   - User presses authentication button at bike
-   - Coral starts biometric session (source="local")
-   - User faces camera, completes face auth
-   - Unlock granted if authenticated, denied otherwise
+**Physical Button Press Flow:**
+1. User presses authentication button on coral station
+2. Coral starts biometric session
+3. User faces camera, completes face auth pipeline:
+   - Face detection
+   - Face recognition (match to enrolled embeddings)
+   - Liveness challenge (head turn, blink, mouth open)
+4. Result: Success (unlock) or failure (denied)
+5. Auth telemetry sent to cloud for logging/monitoring
 
-3. **PyTrack Movement Trigger (Local Direct Connection)**
-   - PyTrack detects suspicious movement (accelerometer spike)
-   - If no recent authentication: asks Coral to authenticate
-   - Coral starts session (source="pytrack")
-   - Theft prevention: user must verify with face
-   - Works when phone in proximity (local connection)
+**No Cloud Commands:**
+Cloud cannot trigger authentication on Coral. All auth requests originate locally via physical button. Cloud receives one-way telemetry updates about auth progress and results.
 
-4. **Cloud Auth Command (PyTrack Out of Range)**
-   - PyTrack lost connection or too far away
-   - OR user explicitly chooses biometric challenge via app
-   - Cloud sends `start_auth` Direct Method to Coral
-   - Coral starts session (source="cloud")
-   - User faces camera, completes biometric auth
-   - Result sent to cloud, propagated to app
-
-**Signal Sources (Source Field Tracking):**
-- `source="local"` - CLI admin testing or physical button
-- `source="pytrack"` - Local movement detection
-- `source="cloud"` - Remote cloud trigger (PyTrack disconnected or user choice)
-
-**See:** `CLOUD_SIGNALING_GUIDE.md` for complete cloud signaling architecture.
+**No PyTrack Communication:**
+PyTrack communicates only with Cloud backend. Coral and PyTrack do not coordinate directly. App-authenticated users bypass Coral entirely (unlock via cloud command without biometric auth).
 
 ## Configuration
 
@@ -291,7 +270,6 @@ Admin interface initializes `CloudSignalingInterface` in mock mode for developme
 - No Azure credentials required for CLI testing
 - Mock mode queues messages locally for verification
 - When deployed with real credentials, cloud signaling automatically activates
-- Signals from CLI tests: `source="local"` (orthogonal to cloud/pytrack)
 
 ## Future Enhancements
 

@@ -1,7 +1,6 @@
 """
 Authentication controller - main orchestration layer.
 Coordinates camera, face detection, recognition, and liveness.
-Exposes authentication state for PyTrack integration.
 """
 
 import time
@@ -44,7 +43,6 @@ class AuthenticationSession:
     error_code: Optional[str]
     created_at: float
     completed_at: Optional[float]
-    source: str = "local"  # "cloud", "pytrack", or "local"
 
     @property
     def age_sec(self) -> float:
@@ -68,8 +66,7 @@ class AuthenticationController:
         self,
         camera: CameraInterface = None,
         embedding_store: EmbeddingStore = None,
-        mock_mode: bool = False,
-        cloud_signaling=None
+        mock_mode: bool = False
     ):
         """
         Initialize authentication controller.
@@ -78,7 +75,6 @@ class AuthenticationController:
             camera: Camera interface (None to auto-create)
             embedding_store: Embedding storage (None to auto-create)
             mock_mode: Use mock models for testing
-            cloud_signaling: CloudSignalingInterface for cloud integration (optional)
         """
         self.config = get_config().auth_controller
         self.runtime_config = get_config()
@@ -97,9 +93,6 @@ class AuthenticationController:
         self.embedding_store = embedding_store
         self.user_manager = UserManager(embedding_store)
 
-        # Cloud integration
-        self.cloud_signaling = cloud_signaling
-
         # State
         self.current_session: Optional[AuthenticationSession] = None
         self.last_successful_auth = None
@@ -108,7 +101,7 @@ class AuthenticationController:
 
         logger_auth.info(f"Authentication controller initialized (mock={mock_mode})")
 
-    # ========== Public API for PyTrack Integration ==========
+    # ========== Authentication Flow ==========
 
     @property
     def last_auth_timestamp(self) -> Optional[float]:
@@ -141,7 +134,6 @@ class AuthenticationController:
     def is_recently_authenticated(self, timeout_sec: int = None) -> bool:
         """
         Check if user was recently authenticated.
-        Used by PyTrack to determine theft alert threshold.
 
         Args:
             timeout_sec: Timeout threshold (None uses config default)
@@ -150,7 +142,7 @@ class AuthenticationController:
             True if authenticated within timeout
         """
         if timeout_sec is None:
-            timeout_sec = get_config().pytrack.timeout_for_auth_sec
+            timeout_sec = get_config().auth_controller.timeout_for_auth_sec
 
         if seconds := self.seconds_since_last_auth:
             result = seconds < timeout_sec
@@ -161,13 +153,9 @@ class AuthenticationController:
 
     # ========== Authentication Flow ==========
 
-    def start_authentication(self, user_hint: str = None, source: str = "local") -> str:
+    def start_authentication(self) -> str:
         """
         Start authentication session.
-
-        Args:
-            user_hint: Optional hint about the user (e.g., from QR code or cloud)
-            source: Signal source ("cloud", "pytrack", "local")
 
         Returns:
             Session ID
@@ -186,16 +174,10 @@ class AuthenticationController:
             result=AuthenticationResult.IN_PROGRESS,
             error_code=None,
             created_at=time.time(),
-            completed_at=None,
-            source=source
+            completed_at=None
         )
 
-        logger_auth.info(f"Authentication session started: {session_id} (source={source})")
-
-        # Notify cloud if this is a cloud-initiated session
-        if self.cloud_signaling and source == "cloud":
-            self.cloud_signaling.send_auth_started(session_id, user_hint=user_hint, source=source)
-
+        logger_auth.info(f"Authentication session started: {session_id}")
         return session_id
 
     def process_frame(self, frame_data=None) -> Dict:
@@ -288,9 +270,6 @@ class AuthenticationController:
                     num_challenges=2
                 )
 
-                # Send progress to cloud if cloud-initiated
-                self._send_auth_progress("recognized", confidence_bool=True)
-
                 return self._session_status()
 
             # 4. LIVENESS CHECK
@@ -378,63 +357,7 @@ class AuthenticationController:
             self._finalize_session()
             logger_auth.warning("Liveness challenge timed out")
 
-        # Send progress to cloud if cloud-initiated
-        self._send_auth_progress(
-            "in_progress",
-            confidence_bool=(session.user_detected_id is not None),
-            liveness_status=self._get_liveness_status()
-        )
-
         return self._session_status()
-
-    def _send_auth_progress(
-        self,
-        state: str,
-        confidence_bool: bool = False,
-        liveness_status: Dict = None
-    ):
-        """
-        Send authentication progress to cloud (async, state-change based).
-
-        Args:
-            state: Current state ("recognized", "in_progress", etc.)
-            confidence_bool: Recognition result (yes/no)
-            liveness_status: Liveness challenge details
-        """
-        if not self.cloud_signaling or not self.current_session:
-            return
-
-        session = self.current_session
-        if session.source != "cloud":
-            return  # Only send progress for cloud-initiated sessions
-
-        if liveness_status is None:
-            liveness_status = self._get_liveness_status()
-
-        self.cloud_signaling.send_auth_progress(
-            session.session_id,
-            state,
-            confidence_bool,
-            liveness_status,
-            time.time()
-        )
-
-    def _get_liveness_status(self) -> Dict:
-        """Get current liveness challenge status."""
-        if not self.current_session or not self.current_session.liveness_challenge:
-            return {"status": "not_started"}
-
-        challenge = self.current_session.liveness_challenge
-        current = challenge.current_challenge
-
-        return {
-            "status": "in_progress" if not challenge.is_complete else "complete",
-            "passed": challenge.passed,
-            "completed_challenges": challenge.completed_count,
-            "total_challenges": len(challenge.challenges),
-            "current_challenge": current.human_description if current else None,
-            "challenge_timed_out": current.is_timed_out if current else False
-        }
 
     def _finalize_session(self):
         """Finalize current session and update state."""
@@ -459,16 +382,6 @@ class AuthenticationController:
         if session.result == AuthenticationResult.SUCCESS:
             self.last_successful_auth = auth_event
             logger_auth.info("Last successful auth updated")
-
-        # Send final result to cloud if cloud-initiated
-        if self.cloud_signaling and session.source == "cloud":
-            self.cloud_signaling.send_auth_result(
-                session.session_id,
-                session.result.value,
-                session.user_detected_id,
-                session.user_detected_confidence if session.user_detected_id else None,
-                session.completed_at
-            )
 
     def _session_status(self) -> Dict:
         """Get current session status."""

@@ -102,7 +102,7 @@ class CameraInterface:
                 logger_cam.error("Failed to read frame from camera")
                 break
 
-            # Drop frame if buffer full (keep only latest)
+            # Drop new frames if buffer is full to avoid blocking
             if not self.frame_buffer.full():
                 self.frame_buffer.put((frame, self._frame_count))
                 self._frame_count += 1

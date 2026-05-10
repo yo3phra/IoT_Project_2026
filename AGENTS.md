@@ -14,9 +14,8 @@
 **Purpose**: Face detection, recognition, liveness check, enrollment pipeline
 
 **Key Modules** (`Coral/`):
-- `auth_controller.py` — Orchestrates auth flow (detector → recognizer → liveness → decision); supports cloud/pytrack/local signal sources
+- `auth_controller.py` — Orchestrates auth flow (detector → recognizer → liveness → decision);
 - `cloud_signaling_interface.py` — Bidirectional Azure IoT Hub signaling (Direct Methods for commands, D2C telemetry for progress)
-- `pytrack_interface.py` — Local PyTrack integration for theft detection (orthogonal to cloud signaling)
 - `face_detector.py` — Detects faces (cascade-based, fallback to YOLO)
 - `face_recognizer.py` — Identifies users (ONNX embeddings model, L2 normalized)
 - `liveness_detector.py` — Detects spoofing (eye blink + texture analysis)
@@ -32,12 +31,11 @@
 
 **Known Gotchas**:
 - Tests require relative path fixes (pytest fixtures need adjustment)
-- Mock mode is active in development; disable when camera/Coral connected
+- Mock mode can be switched in development; disable when camera/Coral connected
 - Embeddings must be L2-normalized (recent refactor ensures this)
-- Liveness thresholds tuned for development; may need adjustment in production
-- Cloud signaling requires `AZURE_IOT_CONNECTION_STRING` env var; gracefully degrades if missing
-- Idle mode uses source tracking: "cloud" (Azure), "pytrack" (local), "local" (CLI). Multiple sources orthogonal; no conflicts.
-- Azure connection is lazy-initialized (only on first send); Direct Methods block until Azure ACK, telemetry is fire-and-forget
+- Liveness thresholds tuned for development; need adjustment in production
+- Cloud signaling requires `AZURE_IOT_CONNECTION_STRING` env var; logs and skips telemetry if not set
+- Azure connection is lazy-initialized (only on first send); telemetry is fire-and-forget
 
 ### 2. mqtt-bridge
 
@@ -166,9 +164,8 @@ MODEL_DIR=/path/to/models  # For Coral TPU deployment
 ```
 IoT_Project_2026/
 ├── Coral/                           # Biometric auth system
-│   ├── auth_controller.py           # Main auth flow orchestration (multi-source: cloud, pytrack, local)
-│   ├── cloud_signaling_interface.py # Azure IoT Hub bidirectional signaling
-│   ├── pytrack_interface.py         # Local PyTrack theft detection
+│   ├── auth_controller.py           # Main auth flow orchestration
+│   ├── cloud_signaling_interface.py # Azure IoT Hub monodirectional signaling(no photo requests yet, only telemetry)
 │   ├── config.py                    # Centralized config + Azure connection string
 │   ├── admin_interface.py           # CLI for enrollment/testing (cloud signaling enabled)
 │   ├── face_detector.py
@@ -213,11 +210,9 @@ IoT_Project_2026/
 
 **Adding a feature**: Start in `Coral/config.py` or `mqtt-bridge/config.py` to understand current thresholds/settings.
 
-**Debugging authentication**: Trace flow through `Coral/auth_controller.py` → detector → recognizer → liveness. Check `session.source` to see signal origin (cloud/pytrack/local).
+**Debugging authentication**: Trace flow through `Coral/auth_controller.py` → detector → recognizer → liveness.
 
 **Cloud signaling issues**: Check `Coral/cloud_signaling_interface.py` for Azure connection state. Verify `AZURE_IOT_CONNECTION_STRING` env var set. Review `CLOUD_SIGNALING_GUIDE.md` for integration patterns.
-
-**Multi-source auth**: Auth controller supports concurrent signals (cloud, pytrack, local). Each creates independent session with `source` field. No conflicts; signals processed orthogonally.
 
 **Adding sensors**: Extend `mqtt-bridge/bridge.py` to parse new TTN uplink fields; persist to CosmosDB collection.
 
@@ -234,5 +229,5 @@ IoT_Project_2026/
 
 ---
 
-*Updated 05-05-2026. Includes Azure cloud signaling (Direct Methods + D2C telemetry), multi-source auth (cloud/pytrack/local), idle mode with preloaded models. Update this file as project evolves.*
+*Updated 10-05-2026. Includes Azure cloud signaling (monodirectional D2C telemetry). Refactored communication logic. Update this file as project evolves.*
 

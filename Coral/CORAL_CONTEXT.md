@@ -11,7 +11,7 @@ Biometric auth platform for Coral Edge TPU:
 - Encrypted local embedding storage (AES-256-GCM) (TODO: confirm if works)
 - Pluggable embedding backends (TensorFlow, ONNX, Mock)
 - Admin CLI for enrollment, auth testing, user lifecycle
-- PyTrack event integration
+- Cloud telemetry integration (Azure IoT Hub)
 
 ## Runtime Flows
 
@@ -52,8 +52,7 @@ SQLite + AES-256-GCM encryption + PBKDF2 key derivation (100k iterations)
 
 **Interface + Integration**
 - `admin_interface.py` - CLI menu (enroll, test, remove, list, debug)
-- `pytrack_interface.py` - Local event reporting to theft detection system
-- `cloud_signaling_interface.py` - Azure IoT Hub signaling: Direct Methods (start_auth, stop_auth) + D2C telemetry (progress)
+- `cloud_signaling_interface.py` - Azure IoT Hub one-way telemetry: auth progress and results (D2C messages)
 - Cloud config in `config.py`: `azure_connection_string`, retry logic, lazy-init
 
 ## Communication Architecture
@@ -74,34 +73,18 @@ Mobile App ←→ Cloud Backend ←→ Azure IoT Hub ←→ Coral
    - **NO message sent to Coral** (stays in idle mode)
    - Fastest unlock path (instant if network available)
 
-2. **Biometric Authentication (Coral involved)**
-   
-   Three triggers for Coral session activation:
-   
-   a) **Physical Button Press**
-      - User presses authentication button on Coral
-      - Coral starts biometric session (source="local")
-   
-   b) **PyTrack Movement Detection** (local, direct connection)
-      - PyTrack detects suspicious movement (accelerometer)
-      - If no recent authentication: asks Coral to verify
-      - Coral starts session (source="pytrack")
-      - Theft prevention: requires face authentication
-      - Works when phone in proximity
-   
-   c) **Cloud Auth Command** (PyTrack out of range)
-      - PyTrack lost connection or too far away
-      - OR user explicitly chooses biometric challenge via app
-      - Cloud sends `start_auth` Direct Method to Coral
-      - Coral starts session (source="cloud")
-   
-   In all cases: User faces camera → face detection → liveness checks → auth result
+2. **Biometric Authentication (Local Button Trigger)**
+   - User presses physical button on Coral
+   - Coral starts local biometric session
+   - User faces camera → face detection → face recognition → liveness checks → auth result
+   - Auth telemetry sent to cloud for logging/monitoring
+   - No cloud commands trigger authentication
 
-**Signal Sources (Orthogonal):**
-- `source="local"` - Physical button or CLI admin testing
-- `source="pytrack"` - Local theft detection trigger
-- `source="cloud"` - Remote trigger (PyTrack disconnected or user choice)
-- App auth - Cloud-only, Coral not involved (no signal sent)
+**Communication Flow:**
+- Coral sends one-way telemetry to cloud (auth_progress, auth_result)
+- Cloud does NOT send commands to Coral
+- PyTrack communicates only with Cloud (not directly with Coral)
+- All app-to-coral coordination flows through cloud backend
 
 ## Embedding Backends
 

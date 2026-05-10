@@ -75,6 +75,8 @@ class AuthControllerConfig:
     total_timeout_sec: int = 30
     min_frames_for_detection: int = 5
     cache_embeddings_locally: bool = True
+    timeout_for_auth_sec: int = 300  # 5 minutes (before user is considered unauthenticated)
+
 
 
 @dataclass
@@ -100,14 +102,6 @@ class UserManagerConfig:
     max_users: int = 50
     min_username_length: int = 3
     max_username_length: int = 32
-
-
-@dataclass
-class PyTrackInterfaceConfig:
-    """PyTrack integration settings."""
-    timeout_for_auth_sec: int = 300  # 5 minutes
-    enable_mock_mode: bool = True  # For Windows testing
-    mock_data_dir: str = "data/mock_pytrack"
 
 
 @dataclass
@@ -153,7 +147,6 @@ class Config:
         self.enrollment_controller = EnrollmentControllerConfig()
         self.embedding_store = EmbeddingStoreConfig()
         self.user_manager = UserManagerConfig()
-        self.pytrack = PyTrackInterfaceConfig()
         self.cloud = CloudInterfaceConfig()
         self.logger = LoggerConfig()
 
@@ -169,7 +162,6 @@ class Config:
             self.embedding_store.db_path.split('/')[0],  # data/
             self.logger.log_dir,
             self.cloud.offline_queue_dir,
-            self.pytrack.mock_data_dir,
         ]
         for dir_path in dirs:
             Path(dir_path).mkdir(parents=True, exist_ok=True)
