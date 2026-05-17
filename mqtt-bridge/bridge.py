@@ -17,14 +17,20 @@ import time
 import json
 import os
 import base64
+import jwt
 
 # --------CONFIGURATION----------------
 
+# data stored
 TTN_HOST     = "eu1.cloud.thethings.network"
 TTN_PORT     = 1883
 TTN_USERNAME = os.environ.get("TTN_USERNAME", "iotbicycle@ttn")
 TTN_PASSWORD = os.environ.get("TTN_PASSWORD")
 TTN_TOPIC    = "v3/iotbicycle@ttn/devices/+/up"
+TTN_APP_ID    = "iotbicycle"
+TTN_DEVICE_ID = "pytrack-01"
+TTN_API_KEY = os.environ.get("TTN_API_KEY")
+
 
 AZURE_CONNECTION_STRING  = os.environ.get("AZURE_IOT_CONNECTION_STRING")
 COSMOS_CONNECTION_STRING = os.environ.get("COSMOS_CONNECTION_STRING")
@@ -81,7 +87,7 @@ def store_data(payload: dict, source: str = "lora"):
         print(f"[{source.upper()}] Store error: {e}")
 
 
-# -------CORAL : triggered only on alert---------
+# -------CORAL : triggered when auth in Cloud---------
 
 
 def upload_image_to_blob(image_base64: str, filename: str) -> str:
@@ -96,53 +102,21 @@ def upload_image_to_blob(image_base64: str, filename: str) -> str:
         print(f"[BLOB] Upload error: {e}")
         return None
 
-def trigger_coral_and_wait():
-    """Called only when Pytrack sends alert=true. Not running permanently."""
+
+def check_auth_status():
+    """Check last Coral ML result in CosmosDB — no direct Coral call."""
     try:
-        requests.post(f"{CORAL_HOST}/alert", json={"source": "pytrack"}, timeout=5)
-        print("[CORAL] Face recognition triggered")
-
-        # Poll until result (max 30s)
-        for _ in range(15):
-            time.sleep(2)
-            res = requests.get(f"{CORAL_HOST}/result", timeout=3)
-            result = res.json()
-            status = result.get("status")
-
-            if status not in ("idle", "processing", None):
-                image_url = None
-
-                if status == "unauthorized" and result.get("has_image"):
-                    try:
-                        img_res = requests.get(f"{CORAL_HOST}/image", timeout=5)
-                        img_data = img_res.json()
-                        if img_data.get("image"):
-                            filename = f"alert_{int(time.time())}.jpg"
-                            image_url = upload_image_to_blob(img_data["image"], filename)
-                    except Exception as e:
-                        print(f"[CORAL] Image error: {e}")
-
-                document = {
-                    "id": f"ml_{time.time()}",
-                    "source": "coral_ml",
-                    "device_id": "coral-dev-board",
-                    "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                    "ml_status": status,
-                    "ml_user": result.get("user"),
-                    "ml_confidence": result.get("confidence"),
-                    "image_url": image_url,
-                    "raw": result
-                }
-                cosmos_container.upsert_item(document)
-                print(f"[CORAL] Result stored: {status} — user: {result.get('user')}")
-                return
-
-        print("[CORAL] Timeout — no result in 30s")
-
-    except requests.exceptions.ConnectionError:
-        print("[CORAL] Offline — skipping face recognition")
+        items = list(cosmos_container.query_items(
+            query="SELECT TOP 1 * FROM c WHERE c.source='coral_ml' ORDER BY c.timestamp DESC",
+            enable_cross_partition_query=True
+        ))
+        if items:
+            last = items[0]
+            print(f"[CORAL] Last auth: {last.get('ml_status')} at {last.get('timestamp')}")
+        else:
+            print("[CORAL] No auth record found — possible theft")
     except Exception as e:
-        print(f"[CORAL] Error: {e}")
+        print(f"[CORAL] Check error: {e}")
 
 
 # -------LORA : TTN MQTT---------
@@ -174,7 +148,7 @@ def on_message(client, userdata, msg):
         decoded = payload.get("uplink_message", {}).get("decoded_payload", {})
         if decoded.get("alert") == True:
             print("[LORA] Alert flag detected — triggering Coral")
-            threading.Thread(target=trigger_coral_and_wait, daemon=True).start()
+            threading.Thread(target=check_auth_status, daemon=True).start()
 
     except Exception as e:
         print(f"[LORA] Error: {e}")
@@ -198,10 +172,20 @@ def start_lora_client():
 # ---------WIFI FALLBACK-----------
 
 wifi_app = Flask(__name__)
-
+JWT_SECRET = os.environ.get("JWT_SECRET", "zoe-secret-2026")
+def verify_jwt(req):
+    token = req.headers.get("Authorization", "").replace("Bearer ", "")
+    try:
+        jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+        return True
+    except:
+        return False
+    
 @wifi_app.route("/data", methods=["POST"])
 def receive_wifi_data():
     try:
+        if not verify_jwt(request):  
+            return jsonify({"error": "Unauthorized"}), 401
         data = request.json
         if not data:
             return jsonify({"error": "No JSON"}), 400
@@ -224,8 +208,8 @@ def receive_wifi_data():
         store_data(payload, source="wifi")
 
         if data.get("alert") == True:
-            print("[WIFI] Alert — triggering Coral")
-            threading.Thread(target=trigger_coral_and_wait, daemon=True).start()
+            print("[WIFI] Alert — Check Auth Status")
+            threading.Thread(target=check_auth_status, daemon=True).start()
 
         return jsonify({"status": "ok"}), 200
 
@@ -236,10 +220,48 @@ def receive_wifi_data():
 def health():
     return jsonify({"status": "ok", "lora_connected": lora_connected}), 200
 
-def start_wifi_server():
-    print(f"WiFi fallback server on port {WIFI_PORT}")
-    wifi_app.run(host="0.0.0.0", port=WIFI_PORT, debug=False, use_reloader=False)
+@wifi_app.route("/mode", methods=["POST"])
+def receive_mode():
+    data = request.json
+    mode = data.get("mode")
+    send_downlink(mode)
+    return jsonify({"status": "ok"})
 
+def start_wifi_server():
+    wifi_app.run(host="0.0.0.0", port=WIFI_PORT,
+                ssl_context=("certs/cert.pem", "certs/key.pem"),
+                 debug=False, use_reloader=False)
+
+
+#----------DOWNLINK UPDATE-------
+
+
+def send_downlink(mode: str):
+    """Send downlink message to FiPy via TTN."""
+    # Encode mode as 1 byte : 0x01 = navigation, 0x02 = parked
+    byte_value = 0x01 if mode == "navigation" else 0x02
+    payload_b64 = base64.b64encode(bytes([byte_value])).decode()
+
+    url = f"https://eu1.cloud.thethings.network/api/v3/as/applications/{TTN_APP_ID}/devices/{TTN_DEVICE_ID}/down/push"
+    
+    headers = {
+        "Authorization": f"Bearer {TTN_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    
+    body = {
+        "downlinks": [{
+            "frm_payload": payload_b64,
+            "f_port": 1,
+            "priority": "NORMAL"
+        }]
+    }
+    
+    try:
+        res = requests.post(url, json=body, headers=headers)
+        print(f"[DOWNLINK] Mode '{mode}' sent to FiPy — status: {res.status_code}")
+    except Exception as e:
+        print(f"[DOWNLINK] Error: {e}")
 
 # ----------MAIN------------
 

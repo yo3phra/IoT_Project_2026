@@ -9,3 +9,5 @@ services:
       - ../.env
     ports:
       - "5001:5001"
+    volumes:
+      - ./certs:/app/certs
