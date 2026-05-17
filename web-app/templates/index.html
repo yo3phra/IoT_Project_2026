@@ -301,10 +301,10 @@
       <div class="pulse"></div>
       System status
     </div>
-    <div class="sys-online" style="font-family:var(--mono);font-size:11px;">ONLINE</div>
+    <div id="modeCommandStatus" class="sys-online" style="font-family:var(--mono);font-size:11px;">ONLINE</div>
   </div>
 
-  <a href="/navigation" class="mode-card nav">
+  <a href="/navigation" class="mode-card nav" onclick="return selectMode(event, 'cruising', '/navigation')">
     <div class="mode-top">
       <div class="mode-icon-wrap nav">
         <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5">
@@ -323,7 +323,7 @@
     </div>
   </a>
 
-  <a href="/parked" class="mode-card park">
+  <a href="/parked" class="mode-card park" onclick="return selectMode(event, 'parked', '/parked')">
     <div class="mode-top">
       <div class="mode-icon-wrap park">
         <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="1.5">
@@ -346,6 +346,57 @@
   <div class="footer-text">University of Antwerp · IoT Lab 2026</div>
   <div class="footer-dot"></div>
 </footer>
+
+<script>
+async function selectMode(event, mode, targetUrl) {
+  event.preventDefault();
+
+  const statusEl = document.getElementById("modeCommandStatus");
+  if (statusEl) {
+    statusEl.textContent = "SENDING";
+  }
+
+  try {
+    const response = await fetch("/api/mode", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ mode: mode })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      if (statusEl) {
+        statusEl.textContent = "FAILED";
+      }
+
+      alert("Failed to switch mode: " + (data.error || data.details || "Unknown error"));
+      console.error(data);
+      return false;
+    }
+
+    if (statusEl) {
+      statusEl.textContent = "OK";
+    }
+
+    console.log("Mode switched:", data);
+
+    window.location.href = targetUrl;
+    return false;
+
+  } catch (error) {
+    if (statusEl) {
+      statusEl.textContent = "ERROR";
+    }
+
+    alert("Could not contact backend: " + error);
+    console.error(error);
+    return false;
+  }
+}
+</script>
 
 </body>
 </html>
