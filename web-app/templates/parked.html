@@ -15,98 +15,57 @@
   }
   body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; max-width: 460px; margin: 0 auto; display: flex; flex-direction: column; position: relative; }
   body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
-
   header { padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; background: rgba(10,12,16,0.95); backdrop-filter: blur(12px); }
   .logo { font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; }
   .logo span { color: var(--accent2); }
   .back-btn { font-family: var(--mono); font-size: 11px; color: var(--muted); text-decoration: none; display: flex; align-items: center; gap: 6px; transition: color 0.15s; }
   .back-btn:hover { color: var(--accent); }
   .back-btn svg { width: 14px; height: 14px; }
-
   .status-pill { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; border: 1px solid; display: flex; align-items: center; gap: 6px; transition: all 0.3s; }
   .status-pill.secure { border-color: rgba(0,212,255,0.3); color: var(--accent); background: rgba(0,212,255,0.06); }
-  .status-pill.alert { border-color: rgba(255,165,2,0.4); color: var(--warn); background: rgba(255,165,2,0.08); }
-  .status-pill.danger { border-color: rgba(255,71,87,0.4); color: var(--danger); background: rgba(255,71,87,0.08); }
+  .status-pill.alert  { border-color: rgba(255,165,2,0.4);  color: var(--warn);   background: rgba(255,165,2,0.08); }
+  .status-pill.theft  { border-color: rgba(255,71,87,0.4);  color: var(--danger); background: rgba(255,71,87,0.08); }
   .pulse { width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: pulse 1.5s ease-in-out infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
   main { flex: 1; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; position: relative; z-index: 10; }
-
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; transition: border-color 0.3s; }
-  .card.alert-active { border-color: rgba(255,165,2,0.3); }
   .card.danger-active { border-color: rgba(255,71,87,0.3); }
   .card-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
   .card-title { font-family: var(--mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; }
-  .card-body { padding: 18px; }
-  .live-tag { font-family: var(--mono); font-size: 9px; color: var(--accent); display: flex; align-items: center; gap: 5px; letter-spacing: 1px; }
+  .live-tag { font-family: var(--mono); font-size: 9px; color: var(--accent); display: flex; align-items: center; gap: 5px; }
   .live-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: pulse 1s ease-in-out infinite; }
-
-  /* Status hero */
-  .status-hero { padding: 22px 18px; display: flex; align-items: center; gap: 18px; }
-  .status-ring { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid; flex-shrink: 0; transition: all 0.3s; position: relative; }
-  .status-ring.secure { border-color: var(--accent); background: rgba(0,212,255,0.06); }
-  .status-ring.alert { border-color: var(--warn); background: rgba(255,165,2,0.08); }
-  .status-ring.danger { border-color: var(--danger); background: rgba(255,71,87,0.08); animation: danger-pulse 1s ease-in-out infinite; }
+  .status-hero { padding: 20px 18px; display: flex; align-items: center; gap: 18px; }
+  .status-ring { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid; flex-shrink: 0; transition: all 0.3s; }
+  .status-ring.secure { border-color: var(--accent);  background: rgba(0,212,255,0.06); }
+  .status-ring.alert  { border-color: var(--warn);    background: rgba(255,165,2,0.08); }
+  .status-ring.theft  { border-color: var(--danger);  background: rgba(255,71,87,0.08); animation: danger-pulse 1s ease-in-out infinite; }
   @keyframes danger-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,71,87,0.3)} 50%{box-shadow:0 0 0 10px rgba(255,71,87,0)} }
-  .status-ring svg { width: 26px; height: 26px; transition: all 0.3s; }
+  .status-ring svg { width: 24px; height: 24px; }
   .status-ring.secure svg { stroke: var(--accent); }
-  .status-ring.alert svg { stroke: var(--warn); }
-  .status-ring.danger svg { stroke: var(--danger); }
-  .status-info { flex: 1; }
-  .status-label { font-size: 20px; font-weight: 600; letter-spacing: -0.3px; margin-bottom: 4px; transition: color 0.3s; }
-  .status-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); line-height: 1.6; }
-
-  /* Accel grid */
-  .accel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  .axis-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 10px; text-align: center; }
-  .axis-label { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-bottom: 8px; letter-spacing: 1px; }
-  .axis-value { font-family: var(--mono); font-size: 24px; font-weight: 500; line-height: 1; transition: color 0.3s; }
-  .axis-value.normal { color: var(--text); } .axis-value.warn { color: var(--warn); } .axis-value.danger { color: var(--danger); }
-  .axis-unit { font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 4px; }
-
-  /* Bars */
-  .bar-wrap { display: flex; align-items: flex-end; gap: 3px; height: 64px; margin-top: 14px; }
-  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; }
-  .bar { width: 100%; border-radius: 2px 2px 0 0; transition: height 0.4s ease; min-height: 2px; }
-  .bar.x { background: var(--accent); opacity: 0.8; } .bar.y { background: var(--accent2); opacity: 0.8; } .bar.z { background: #00ff88; opacity: 0.6; }
-  .bar-tick { font-family: var(--mono); font-size: 8px; color: var(--muted); }
-  .bar-legend { display: flex; gap: 16px; margin-top: 10px; justify-content: center; }
-  .legend-item { display: flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 1px; }
-  .legend-dot { width: 8px; height: 3px; border-radius: 2px; }
-
-  /* Threshold table */
-  .thresh-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 18px; border-bottom: 1px solid var(--border); }
-  .thresh-row:last-child { border-bottom: none; }
-  .thresh-name { font-family: var(--mono); font-size: 11px; color: var(--muted); }
-  .thresh-val { font-family: var(--mono); font-size: 12px; color: var(--text); }
-
-  /* Alerts */
-  .alert-list { display: flex; flex-direction: column; gap: 8px; }
+  .status-ring.alert  svg { stroke: var(--warn); }
+  .status-ring.theft  svg { stroke: var(--danger); }
+  .status-label { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+  .status-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+  .data-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 18px; border-bottom: 1px solid var(--border); }
+  .data-row:last-child { border-bottom: none; }
+  .data-name { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .data-val { font-family: var(--mono); font-size: 12px; }
+  .data-val.ok      { color: var(--accent); }
+  .data-val.warn    { color: var(--warn); }
+  .data-val.danger  { color: var(--danger); }
+  .data-val.neutral { color: var(--text); }
+  .data-val.offline { color: var(--muted); }
+  .alert-list { display: flex; flex-direction: column; gap: 8px; padding: 14px 18px; }
   .alert-item { border-radius: 8px; padding: 10px 14px; border: 1px solid; }
-  .alert-item.high { border-color: rgba(255,71,87,0.3); background: rgba(255,71,87,0.06); }
-  .alert-item.medium { border-color: rgba(255,165,2,0.3); background: rgba(255,165,2,0.06); }
-  .alert-item.info { border-color: rgba(0,212,255,0.2); background: rgba(0,212,255,0.04); }
-  .alert-msg { font-size: 12px; font-weight: 500; margin-bottom: 3px; }
-  .alert-time { font-family: var(--mono); font-size: 10px; color: var(--muted); }
-  .alert-count { font-family: var(--mono); font-size: 10px; color: var(--muted); }
-  .no-alerts { font-family: var(--mono); font-size: 11px; color: var(--muted); text-align: center; padding: 14px 0; }
-
-  /* ML card */
-  .ml-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 18px; border-bottom: 1px solid var(--border); }
-  .ml-row:last-child { border-bottom: none; }
-  .ml-name { font-family: var(--mono); font-size: 11px; color: var(--muted); }
-  .ml-val { font-family: var(--mono); font-size: 12px; }
-  .ml-val.ok { color: var(--accent); }
-  .ml-val.warn { color: var(--warn); }
-  .ml-val.danger { color: var(--danger); }
-  .ml-val.offline { color: var(--muted); }
-
-  /* Action buttons */
-  .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .btn { padding: 13px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); font-family: var(--mono); font-size: 11px; font-weight: 500; cursor: pointer; color: var(--text); letter-spacing: 1px; transition: all 0.15s; }
-  .btn:hover { background: var(--surface2); border-color: var(--muted); }
-  .btn.primary { background: rgba(123,97,255,0.1); border-color: rgba(123,97,255,0.3); color: var(--accent2); }
-  .btn.primary:hover { background: rgba(123,97,255,0.15); }
+  .alert-item.theft { border-color: rgba(255,71,87,0.3); background: rgba(255,71,87,0.06); }
+  .alert-item.warn  { border-color: rgba(255,165,2,0.3); background: rgba(255,165,2,0.06); }
+  .alert-item.info  { border-color: rgba(0,212,255,0.2); background: rgba(0,212,255,0.04); }
+  .alert-msg  { font-size: 12px; font-weight: 500; margin-bottom: 3px; }
+  .alert-meta { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+  .no-alerts { font-family: var(--mono); font-size: 11px; color: var(--muted); text-align: center; padding: 16px 18px; }
+  .source-badge { font-family: var(--mono); font-size: 10px; text-align: center; padding: 8px; border-radius: 8px; border: 1px solid var(--border); }
+  .source-badge.live { color: var(--accent); border-color: rgba(0,212,255,0.2); background: rgba(0,212,255,0.04); }
+  .source-badge.sim  { color: var(--warn);   border-color: rgba(255,165,2,0.2);  background: rgba(255,165,2,0.04); }
 </style>
 </head>
 <body>
@@ -124,253 +83,164 @@
 
 <main>
 
-  <!-- Status hero -->
+  <!-- Global status -->
   <div class="card" id="statusCard">
     <div class="status-hero">
       <div class="status-ring secure" id="statusRing">
-        <svg id="statusIcon" viewBox="0 0 24 24" fill="none" stroke-width="1.5">
+        <svg fill="none" stroke-width="1.5" id="statusIcon" viewBox="0 0 24 24">
           <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
         </svg>
       </div>
-      <div class="status-info">
+      <div>
         <div class="status-label" id="statusLabel">Bike secured</div>
-        <div class="status-sub">Monitoring active · Last update: <span id="lastUpdate">—</span></div>
+        <div class="status-sub">Last update: <span id="lastUpdate">—</span></div>
       </div>
     </div>
   </div>
 
-  <!-- Accelerometer -->
-  <div class="card">
-    <div class="card-header">
-      <span class="card-title">Accelerometer</span>
-      <div class="live-tag"><div class="live-dot"></div> Live</div>
-    </div>
-    <div class="card-body">
-      <div class="accel-grid">
-        <div class="axis-card">
-          <div class="axis-label">X — AXIS</div>
-          <div class="axis-value normal" id="valX">—</div>
-          <div class="axis-unit">m/s²</div>
-        </div>
-        <div class="axis-card">
-          <div class="axis-label">Y — AXIS</div>
-          <div class="axis-value normal" id="valY">—</div>
-          <div class="axis-unit">m/s²</div>
-        </div>
-        <div class="axis-card">
-          <div class="axis-label">Z — AXIS</div>
-          <div class="axis-value normal" id="valZ">—</div>
-          <div class="axis-unit">m/s²</div>
-        </div>
-      </div>
-      <div class="bar-wrap" id="barWrap"></div>
-      <div class="bar-legend">
-        <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> X</div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--accent2)"></div> Y</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#00ff88"></div> Z</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Thresholds -->
-  <div class="card">
-    <div class="card-header"><span class="card-title">Detection Thresholds</span></div>
-    <div class="thresh-row"><span class="thresh-name">Movement alert</span><span class="thresh-val">± 1.5 m/s²</span></div>
-    <div class="thresh-row"><span class="thresh-name">Theft trigger</span><span class="thresh-val">± 3.0 m/s²</span></div>
-    <div class="thresh-row"><span class="thresh-name">Sample rate</span><span class="thresh-val">1 Hz</span></div>
-  </div>
-
-  <!-- ML / Face Recognition -->
+  <!-- Coral Face Recognition -->
   <div class="card">
     <div class="card-header">
       <span class="card-title">Face Recognition — Coral</span>
       <div class="live-tag"><div class="live-dot"></div> ML</div>
     </div>
-    <div class="ml-row"><span class="ml-name">Status</span><span class="ml-val offline" id="mlStatus">Offline</span></div>
-    <div class="ml-row"><span class="ml-name">Confidence</span><span class="ml-val" id="mlConfidence">—</span></div>
-    <div class="ml-row"><span class="ml-name">User detected</span><span class="ml-val" id="mlUser">—</span></div>
-    <div class="ml-row"><span class="ml-name">Model</span><span class="ml-val ok">ONNX · webface_r50</span></div>
+    <div class="data-row"><span class="data-name">Auth status</span><span class="data-val offline" id="mlStatus">Idle</span></div>
+    <div class="data-row"><span class="data-name">User</span><span class="data-val neutral" id="mlUser">—</span></div>
+    <div class="data-row"><span class="data-name">Model</span><span class="data-val ok">ONNX · webface_r50</span></div>
   </div>
 
-  <!-- Alerts -->
-  <div class="card">
+  <!-- Pytrack alerts -->
+  <div class="card" id="alertCard">
     <div class="card-header">
-      <span class="card-title">Event Log</span>
-      <span class="alert-count" id="alertCount">0 events</span>
+      <span class="card-title">Pytrack alerts</span>
+      <span class="data-val neutral" id="alertCount" style="font-size:10px">0 events</span>
     </div>
-    <div class="card-body">
-      <div class="alert-list" id="alertList">
-        <div class="no-alerts">No alerts — system secure</div>
-      </div>
-    </div>
+    <div id="alertList"><div class="no-alerts">No alerts — bike is secure</div></div>
   </div>
 
-  <!-- Actions -->
-  <div class="action-row">
-    <button class="btn" onclick="simulateAlert()">Simulate Alert</button>
-    <button class="btn primary" onclick="resetStatus()">Reset Security</button>
-  </div>
+  <div class="source-badge sim" id="sourceBadge">Simulated data — device not connected</div>
 
 </main>
 
 <script>
-  const ALERT_THRESH = 1.5, DANGER_THRESH = 3.0;
-  let currentStatus = 'secure';
-  let alerts = [], history = [];
-  const MAX_BARS = 14;
-
-  async function fetchLatest() {
-    try {
-      const res = await fetch('/api/latest');
-      const d = await res.json();
-      updateUI(d);
-      checkThresholds(d);
-    } catch(e) {}
-  }
-
-  async function fetchHistory() {
-    try {
-      const res = await fetch('/api/history');
-      const data = await res.json();
-      history = data.slice(0, MAX_BARS).reverse();
-      renderBars();
-    } catch(e) {}
-  }
+  let alerts = [];
 
   async function fetchML() {
     try {
       const res = await fetch('/api/ml');
       const d = await res.json();
-      const statusEl = document.getElementById('mlStatus');
-      const conf = document.getElementById('mlConfidence');
-      const user = document.getElementById('mlUser');
+      updateML(d);
+    } catch(e) {}
+  }
 
-      if (d.status === 'offline') {
-        statusEl.textContent = 'Offline'; statusEl.className = 'ml-val offline';
-        conf.textContent = '—'; user.textContent = '—';
-      } else if (d.status === 'authorized') {
-        statusEl.textContent = 'Authorized'; statusEl.className = 'ml-val ok';
-        conf.textContent = d.confidence ? (d.confidence * 100).toFixed(0) + '%' : '—';
-        user.textContent = d.user || 'Known user';
-      } else {
-        statusEl.textContent = 'Unauthorized'; statusEl.className = 'ml-val danger';
-        conf.textContent = d.confidence ? (d.confidence * 100).toFixed(0) + '%' : '—';
-        user.textContent = 'Unknown';
-        if (currentStatus === 'secure') {
-          setStatus('danger');
-          addAlert('Unauthorized face detected by Coral ML', 'high');
-        }
+  async function fetchAlerts() {
+    try {
+      const res = await fetch('/api/alerts');
+      const data = await res.json();
+      if (data.length) {
+        alerts = data;
+        renderAlerts();
+        // Set status based on most recent alert
+        const latest = data[0];
+        if (latest.event_type === 'theft_alert') setStatus('theft');
+        else if (latest.event_type === 'crash_alert') setStatus('alert');
       }
     } catch(e) {}
   }
 
-  function updateUI(d) {
-    const x = parseFloat(d.x) || 0;
-    const y = parseFloat(d.y) || 0;
-    const z = parseFloat(d.z) || 9.81;
-
-    document.getElementById('valX').textContent = x.toFixed(2);
-    document.getElementById('valY').textContent = y.toFixed(2);
-    document.getElementById('valZ').textContent = z.toFixed(2);
-
-    const now = new Date();
-    document.getElementById('lastUpdate').textContent =
-      now.getHours().toString().padStart(2,'0') + ':' +
-      now.getMinutes().toString().padStart(2,'0') + ':' +
-      now.getSeconds().toString().padStart(2,'0');
-
-    ['X','Y'].forEach(axis => {
-      const el = document.getElementById('val'+axis);
-      const v = Math.abs(axis === 'X' ? x : y);
-      el.className = 'axis-value ' + (v > DANGER_THRESH ? 'danger' : v > ALERT_THRESH ? 'warn' : 'normal');
-    });
+  async function fetchLatest() {
+    try {
+      const res = await fetch('/api/latest');
+      const d = await res.json();
+      const now = new Date();
+      document.getElementById('lastUpdate').textContent =
+        now.getHours().toString().padStart(2,'0') + ':' +
+        now.getMinutes().toString().padStart(2,'0') + ':' +
+        now.getSeconds().toString().padStart(2,'0');
+      const badge = document.getElementById('sourceBadge');
+      if (d.simulated) {
+        badge.textContent = 'Simulated data — device not connected';
+        badge.className = 'source-badge sim';
+      } else {
+        badge.textContent = 'Live data from CosmosDB';
+        badge.className = 'source-badge live';
+      }
+    } catch(e) {}
   }
 
-  function checkThresholds(d) {
-    const x = parseFloat(d.x) || 0, y = parseFloat(d.y) || 0;
-    const mag = Math.sqrt(x**2 + y**2);
-    if (currentStatus === 'secure') {
-      if (mag > DANGER_THRESH) { setStatus('danger'); addAlert('Sustained movement — theft likely', 'high'); }
-      else if (mag > ALERT_THRESH) { setStatus('alert'); addAlert('Movement detected on X/Y axis', 'medium'); }
+  function updateML(d) {
+    const status = d.ml_status || 'idle';
+    const statusEl = document.getElementById('mlStatus');
+    const userEl   = document.getElementById('mlUser');
+
+    if (status === 'authorized') {
+      statusEl.textContent = 'Authorized';
+      statusEl.className = 'data-val ok';
+      userEl.textContent = d.user || 'Known user';
+      userEl.className = 'data-val ok';
+      if (document.getElementById('statusPill').classList.contains('theft')) return;
+      setStatus('secure');
+    } else if (status === 'unauthorized') {
+      statusEl.textContent = 'Unauthorized';
+      statusEl.className = 'data-val danger';
+      userEl.textContent = 'Unknown person';
+      userEl.className = 'data-val danger';
+      setStatus('theft');
+    } else {
+      statusEl.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+      statusEl.className = 'data-val offline';
+      confEl.textContent = '—';
+      userEl.textContent = '—';
+      userEl.className = 'data-val neutral';
     }
   }
 
   function setStatus(s) {
-    currentStatus = s;
-    const pill = document.getElementById('statusPill');
-    const ring = document.getElementById('statusRing');
+    const pill  = document.getElementById('statusPill');
+    const ring  = document.getElementById('statusRing');
     const label = document.getElementById('statusLabel');
-    const pillText = document.getElementById('pillText');
-    const icon = document.getElementById('statusIcon');
+    const icon  = document.getElementById('statusIcon');
 
-    pill.className = 'status-pill ' + (s === 'secure' ? 'secure' : s === 'alert' ? 'alert' : 'danger');
-    ring.className = 'status-ring ' + s;
+    pill.className  = 'status-pill ' + s;
+    ring.className  = 'status-ring ' + s;
+
+    const pillTextMap = { secure: 'Secure', alert: 'Alert', theft: 'Theft' };
+    document.getElementById('pillText').textContent = pillTextMap[s] || s;
 
     if (s === 'secure') {
-      pillText.textContent = 'Secure'; label.textContent = 'Bike secured';
+      label.textContent = 'Bike secured';
       icon.innerHTML = '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>';
     } else if (s === 'alert') {
-      pillText.textContent = 'Alert'; label.textContent = 'Movement detected';
+      label.textContent = 'Movement detected';
       icon.innerHTML = '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>';
-    } else {
-      pillText.textContent = 'Theft'; label.textContent = 'Possible theft detected';
+    } else if (s === 'theft') {
+      label.textContent = 'Possible theft';
       icon.innerHTML = '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
     }
-  }
-
-  function addAlert(msg, level) {
-    const now = new Date();
-    const time = now.getHours().toString().padStart(2,'0') + ':' +
-                 now.getMinutes().toString().padStart(2,'0') + ':' +
-                 now.getSeconds().toString().padStart(2,'0');
-    alerts.unshift({ msg, level, time });
-    if (alerts.length > 10) alerts.pop();
-    renderAlerts();
   }
 
   function renderAlerts() {
     const list = document.getElementById('alertList');
     document.getElementById('alertCount').textContent = alerts.length + ' event' + (alerts.length !== 1 ? 's' : '');
-    if (!alerts.length) { list.innerHTML = '<div class="no-alerts">No alerts — system secure</div>'; return; }
-    list.innerHTML = alerts.map(a => `
-      <div class="alert-item ${a.level}">
-        <div class="alert-msg">${a.msg}</div>
-        <div class="alert-time">${a.time}</div>
-      </div>`).join('');
+    if (!alerts.length) {
+      list.innerHTML = '<div class="no-alerts">No alerts — bike is secure</div>';
+      return;
+    }
+    list.innerHTML = '<div class="alert-list">' + alerts.map(a => {
+      const cls = a.event_type === 'theft_alert' ? 'theft' : 'warn';
+      const label = a.event_type === 'theft_alert' ? 'Theft alert' : 'Movement alert';
+      const gps = (a.lat && a.lon) ? ` · ${parseFloat(a.lat).toFixed(4)}, ${parseFloat(a.lon).toFixed(4)}` : '';
+      return `<div class="alert-item ${cls}">
+        <div class="alert-msg">${label} — bike ${a.bike_id || '—'}</div>
+        <div class="alert-meta">${a.timestamp || '—'}${gps}</div>
+      </div>`;
+    }).join('') + '</div>';
   }
 
-  function simulateAlert() {
-    setStatus('alert'); addAlert('Simulated movement event', 'medium');
-    setTimeout(() => { if (currentStatus === 'alert') { setStatus('danger'); addAlert('Simulated sustained movement', 'high'); } }, 3000);
-  }
-
-  function resetStatus() {
-    currentStatus = 'secure'; setStatus('secure');
-    addAlert('System reset — monitoring resumed', 'info');
-  }
-
-  function renderBars() {
-    const wrap = document.getElementById('barWrap');
-    wrap.innerHTML = '';
-    history.forEach((d, i) => {
-      const col = document.createElement('div'); col.className = 'bar-col';
-      ['x','y','z'].forEach(axis => {
-        const bar = document.createElement('div'); bar.className = 'bar ' + axis;
-        const pct = Math.min(Math.abs(parseFloat(d[axis]) || 0) / 5, 1);
-        bar.style.height = Math.max(pct * 56, 2) + 'px';
-        col.appendChild(bar);
-      });
-      if (i === history.length - 1) {
-        const tick = document.createElement('div'); tick.className = 'bar-tick'; tick.textContent = 'now'; col.appendChild(tick);
-      }
-      wrap.appendChild(col);
-    });
-  }
-
-  fetchLatest(); fetchHistory(); fetchML();
+  fetchLatest(); fetchML(); fetchAlerts();
   setInterval(fetchLatest, 3000);
-  setInterval(fetchHistory, 10000);
   setInterval(fetchML, 5000);
+  setInterval(fetchAlerts, 5000);
 </script>
 </body>
 </html>

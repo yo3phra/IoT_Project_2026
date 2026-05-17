@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ZOE — Navigation</title>
+<title>ZOE — Cruising</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -35,27 +35,21 @@
   .live-tag { font-family: var(--mono); font-size: 9px; color: var(--accent); display: flex; align-items: center; gap: 5px; letter-spacing: 1px; }
   .live-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: pulse 1s ease-in-out infinite; }
 
-  /* Accel grid */
-  .accel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  .axis-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 10px; text-align: center; }
-  .axis-label { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-bottom: 8px; letter-spacing: 1px; }
-  .axis-value { font-family: var(--mono); font-size: 24px; font-weight: 500; line-height: 1; transition: color 0.3s; }
-  .axis-value.normal { color: var(--text); }
-  .axis-value.warn { color: var(--warn); }
-  .axis-value.danger { color: var(--danger); }
-  .axis-unit { font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 4px; }
+  /* Speed + stats grid */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px 14px; }
+  .stat-label { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-bottom: 8px; letter-spacing: 1px; }
+  .stat-value { font-family: var(--mono); font-size: 28px; font-weight: 500; line-height: 1; color: var(--text); transition: color 0.3s; }
+  .stat-value.accent { color: var(--accent); }
+  .stat-value.warn { color: var(--warn); }
+  .stat-value.danger { color: var(--danger); }
+  .stat-unit { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 4px; }
 
-  /* Bar chart */
-  .bar-wrap { display: flex; align-items: flex-end; gap: 3px; height: 64px; margin-top: 14px; }
-  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; }
-  .bar { width: 100%; border-radius: 2px 2px 0 0; transition: height 0.4s ease; min-height: 2px; }
-  .bar.x { background: var(--accent); opacity: 0.8; }
-  .bar.y { background: var(--accent2); opacity: 0.8; }
-  .bar.z { background: #00ff88; opacity: 0.6; }
-  .bar-tick { font-family: var(--mono); font-size: 8px; color: var(--muted); }
-  .bar-legend { display: flex; gap: 16px; margin-top: 10px; justify-content: center; }
-  .legend-item { display: flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 1px; }
-  .legend-dot { width: 8px; height: 3px; border-radius: 2px; }
+  /* Crash alert banner */
+  .crash-banner { display: none; background: rgba(255,71,87,0.1); border: 1px solid rgba(255,71,87,0.4); border-radius: 10px; padding: 14px 18px; }
+  .crash-banner.visible { display: flex; align-items: center; justify-content: space-between; }
+  .crash-banner-text { font-family: var(--mono); font-size: 12px; color: var(--danger); font-weight: 500; }
+  .crash-banner-time { font-family: var(--mono); font-size: 10px; color: var(--muted); }
 
   /* Data rows */
   .data-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 0; border-bottom: 1px solid var(--border); }
@@ -64,15 +58,14 @@
   .data-val { font-family: var(--mono); font-size: 12px; color: var(--text); }
 
   /* GPS Map */
-  .map-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; overflow: hidden; }
+  .map-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; overflow: hidden; }
   .map-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px); background-size: 20px 20px; }
-  .map-crosshair { z-index: 2; width: 20px; height: 20px; position: relative; }
-  .map-crosshair::before, .map-crosshair::after { content: ''; position: absolute; background: var(--accent); }
-  .map-crosshair::before { width: 1px; height: 100%; left: 50%; top: 0; }
-  .map-crosshair::after { width: 100%; height: 1px; top: 50%; left: 0; }
   .map-dot { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); z-index: 3; animation: map-pulse 2s ease-in-out infinite; }
   @keyframes map-pulse { 0%,100%{box-shadow: 0 0 12px var(--accent)} 50%{box-shadow: 0 0 24px var(--accent)} }
   .map-coords-tag { z-index: 4; background: var(--surface); border: 1px solid var(--border); padding: 4px 10px; border-radius: 4px; font-family: var(--mono); font-size: 10px; color: var(--text); }
+
+  /* GPS trace dots */
+  .trace-dot { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: var(--accent); opacity: 0.3; z-index: 2; }
 
   /* Source badge */
   .source-badge { font-family: var(--mono); font-size: 10px; text-align: center; padding: 8px; border-radius: 8px; border: 1px solid var(--border); }
@@ -86,41 +79,36 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m7-7-7 7 7 7"/></svg>
     Back
   </a>
-  <div class="logo">ZOE <span>Nav</span></div>
+  <div class="logo">ZOE <span>Cruise</span></div>
   <div class="mode-pill"><div class="pulse"></div> Riding</div>
 </header>
 
 <main>
 
-  <!-- Accelerometer -->
+  <!-- Crash alert banner (hidden by default) -->
+  <div class="crash-banner" id="crashBanner">
+    <div class="crash-banner-text">Crash detected</div>
+    <div class="crash-banner-time" id="crashTime">—</div>
+  </div>
+
+  <!-- Speed + Bike stats -->
   <div class="card">
     <div class="card-header">
-      <span class="card-title">Accelerometer</span>
+      <span class="card-title">Live data</span>
       <div class="live-tag"><div class="live-dot"></div> Live</div>
     </div>
     <div class="card-body">
-      <div class="accel-grid">
-        <div class="axis-card">
-          <div class="axis-label">X — AXIS</div>
-          <div class="axis-value normal" id="valX">—</div>
-          <div class="axis-unit">m/s²</div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Speed</div>
+          <div class="stat-value accent" id="valSpeed">—</div>
+          <div class="stat-unit">km/h</div>
         </div>
-        <div class="axis-card">
-          <div class="axis-label">Y — AXIS</div>
-          <div class="axis-value normal" id="valY">—</div>
-          <div class="axis-unit">m/s²</div>
+        <div class="stat-card">
+          <div class="stat-label">Event</div>
+          <div class="stat-value" id="valEvent" style="font-size:16px;padding-top:6px">—</div>
+          <div class="stat-unit" id="valBikeId">bike —</div>
         </div>
-        <div class="axis-card">
-          <div class="axis-label">Z — AXIS</div>
-          <div class="axis-value normal" id="valZ">—</div>
-          <div class="axis-unit">m/s²</div>
-        </div>
-      </div>
-      <div class="bar-wrap" id="barWrap"></div>
-      <div class="bar-legend">
-        <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> X</div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--accent2)"></div> Y</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#00ff88"></div> Z</div>
       </div>
     </div>
   </div>
@@ -132,9 +120,9 @@
       <div class="live-tag"><div class="live-dot"></div> Live</div>
     </div>
     <div class="card-body">
-      <div class="map-box">
+      <div class="map-box" id="mapBox">
         <div class="map-grid"></div>
-        <div class="map-dot"></div>
+        <div class="map-dot" id="mapDot"></div>
         <div class="map-coords-tag" id="gpsCoords">Acquiring signal...</div>
       </div>
       <div style="margin-top:14px">
@@ -151,8 +139,7 @@
 </main>
 
 <script>
-  const ALERT_THRESH = 1.5, DANGER_THRESH = 3.0;
-  let history = [], MAX_BARS = 14;
+  let gpsHistory = [];
 
   async function fetchLatest() {
     try {
@@ -166,34 +153,52 @@
     try {
       const res = await fetch('/api/history');
       const data = await res.json();
-      history = data.slice(0, MAX_BARS).reverse();
-      renderBars();
+      gpsHistory = data.filter(d => d.has_gps).slice(0, 10);
+      renderTrace();
     } catch(e) {}
   }
 
   function updateUI(d) {
-    const x = parseFloat(d.x) || 0;
-    const y = parseFloat(d.y) || 0;
-    const z = parseFloat(d.z) || 9.81;
+    // Speed
+    const speed = d.speed !== null && d.speed !== undefined ? d.speed : '—';
+    document.getElementById('valSpeed').textContent = speed;
 
-    document.getElementById('valX').textContent = x.toFixed(2);
-    document.getElementById('valY').textContent = y.toFixed(2);
-    document.getElementById('valZ').textContent = z.toFixed(2);
+    // Event type
+    const eventEl = document.getElementById('valEvent');
+    const event = d.event_type || '—';
+    eventEl.textContent = event;
+    if (event === 'crash_alert') {
+      eventEl.className = 'stat-value danger';
+      document.getElementById('crashBanner').classList.add('visible');
+      document.getElementById('crashTime').textContent = d.timestamp || '—';
+    } else if (event === 'theft_alert') {
+      eventEl.className = 'stat-value warn';
+    } else {
+      eventEl.className = 'stat-value accent';
+    }
 
-    ['X','Y'].forEach(axis => {
-      const el = document.getElementById('val'+axis);
-      const v = Math.abs(axis === 'X' ? x : y);
-      el.className = 'axis-value ' + (v > DANGER_THRESH ? 'danger' : v > ALERT_THRESH ? 'warn' : 'normal');
-    });
+    // Bike ID
+    document.getElementById('valBikeId').textContent = `bike ${d.bike_id || '—'}`;
 
+    // GPS
+    if (d.has_gps && d.lat && d.lon) {
+      document.getElementById('gpsLat').textContent = parseFloat(d.lat).toFixed(6);
+      document.getElementById('gpsLon').textContent = parseFloat(d.lon).toFixed(6);
+      document.getElementById('gpsCoords').textContent = `${parseFloat(d.lat).toFixed(4)}, ${parseFloat(d.lon).toFixed(4)}`;
+    } else {
+      document.getElementById('gpsCoords').textContent = 'No GPS fix';
+    }
+
+    // Timestamp
     const now = new Date();
     document.getElementById('lastUpdate').textContent =
       now.getHours().toString().padStart(2,'0') + ':' +
       now.getMinutes().toString().padStart(2,'0') + ':' +
       now.getSeconds().toString().padStart(2,'0');
 
-    document.getElementById('deviceId').textContent = d.device_id || 'pysense-01';
+    document.getElementById('deviceId').textContent = d.device_id || '—';
 
+    // Source badge
     const badge = document.getElementById('sourceBadge');
     if (d.simulated) {
       badge.textContent = 'Simulated data — device not connected';
@@ -204,26 +209,44 @@
     }
   }
 
-  function renderBars() {
-    const wrap = document.getElementById('barWrap');
-    wrap.innerHTML = '';
-    history.forEach((d, i) => {
-      const col = document.createElement('div');
-      col.className = 'bar-col';
-      ['x','y','z'].forEach(axis => {
-        const bar = document.createElement('div');
-        bar.className = 'bar ' + axis;
-        const pct = Math.min(Math.abs(parseFloat(d[axis]) || 0) / 5, 1);
-        bar.style.height = Math.max(pct * 56, 2) + 'px';
-        col.appendChild(bar);
-      });
-      if (i === history.length - 1) {
-        const tick = document.createElement('div');
-        tick.className = 'bar-tick'; tick.textContent = 'now';
-        col.appendChild(tick);
-      }
-      wrap.appendChild(col);
+  function renderTrace() {
+    // Remove old trace dots
+    document.querySelectorAll('.trace-dot').forEach(d => d.remove());
+    const box = document.getElementById('mapBox');
+    const w = box.offsetWidth, h = box.offsetHeight;
+
+    if (gpsHistory.length < 2) return;
+
+    const lats = gpsHistory.map(d => d.lat).filter(Boolean);
+    const lons = gpsHistory.map(d => d.lon).filter(Boolean);
+    if (!lats.length) return;
+
+    const minLat = Math.min(...lats), maxLat = Math.max(...lats);
+    const minLon = Math.min(...lons), maxLon = Math.max(...lons);
+    const rangeLat = maxLat - minLat || 0.001;
+    const rangeLon = maxLon - minLon || 0.001;
+
+    gpsHistory.forEach((d, i) => {
+      if (!d.lat || !d.lon) return;
+      const x = ((d.lon - minLon) / rangeLon) * (w - 40) + 20;
+      const y = (1 - (d.lat - minLat) / rangeLat) * (h - 40) + 20;
+      const dot = document.createElement('div');
+      dot.className = 'trace-dot';
+      dot.style.left = x + 'px';
+      dot.style.top = y + 'px';
+      dot.style.opacity = 0.15 + (i / gpsHistory.length) * 0.5;
+      box.appendChild(dot);
     });
+
+    // Move main dot to latest position
+    const latest = gpsHistory[gpsHistory.length - 1];
+    if (latest?.lat && latest?.lon) {
+      const x = ((latest.lon - minLon) / rangeLon) * (w - 40) + 20;
+      const y = (1 - (latest.lat - minLat) / rangeLat) * (h - 40) + 20;
+      const dot = document.getElementById('mapDot');
+      dot.style.left = x + 'px';
+      dot.style.top = y + 'px';
+    }
   }
 
   fetchLatest(); fetchHistory();
