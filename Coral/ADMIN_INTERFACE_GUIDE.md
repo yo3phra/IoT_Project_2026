@@ -99,7 +99,7 @@ SUCCESS: User enrolled with N embeddings
 ```
 [Frames: 45] [Embeddings: 3/5] 
 [Frames: 50] [Embeddings: 4/5] 
-[Frames: 55] [Embeddings: 5/5] ✓ Enrollment complete!
+[Frames: 55] [Embeddings: 5/5] Enrollment complete!
 ```
 
 ### 2. Test Authentication
@@ -141,7 +141,7 @@ SUCCESS: User authenticated with confidence score
 ```
 [User: user_001] [Confidence: x%]
 [User: user_001] [Confidence: x%] [Challenge: Turn head left]
-✓ AUTHENTICATION SUCCESS!
+AUTHENTICATION SUCCESS!
   User: user_001
   Confidence: x%
   Liveness: Verified

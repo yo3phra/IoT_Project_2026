@@ -587,9 +587,9 @@ class AdminInterface:
             print(f"Threshold: {1.0 - (threshold / 2.0):.1%}")
 
             if best_conf > threshold:
-                self._print_success(f"✓ Recognition WOULD PASS")
+                self._print_success(f"Recognition WOULD PASS")
             else:
-                self._print_error(f"✗ Recognition WOULD FAIL - confidence too low")
+                self._print_error(f"Recognition WOULD FAIL - confidence too low")
 
         except Exception as e:
             self._print_error(f"Test failed: {e}")

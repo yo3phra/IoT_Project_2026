@@ -267,7 +267,7 @@ class AuthenticationController:
                 # 3. START LIVENESS CHALLENGE
                 session.liveness_challenge = self.challenge_manager.create_sequence(
                     best_match_user,
-                    num_challenges=2
+                    num_challenges=self.runtime_config.liveness.num_challenges
                 )
 
                 return self._session_status()

@@ -185,17 +185,20 @@ class ChallengeManager:
         self.config = get_config().liveness
         self.sequences: Dict[str, ChallengeSequence] = {}
 
-    def create_sequence(self, user_id: str, num_challenges: int = 2) -> ChallengeSequence:
+    def create_sequence(self, user_id: str, num_challenges: int = None) -> ChallengeSequence:
         """
         Create a new challenge sequence for user.
 
         Args:
             user_id: User undergoingliveness check
-            num_challenges: Number of challenges to present
+            num_challenges: Number of challenges to present (defaults to config value)
 
         Returns:
             ChallengeSequence object
         """
+        if num_challenges is None:
+            num_challenges = self.config.num_challenges
+
         sequence_id = f"seq_{user_id}_{int(time.time() * 1000)}"
         sequence = ChallengeSequence(sequence_id, num_challenges)
         self.sequences[sequence_id] = sequence

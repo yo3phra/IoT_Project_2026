@@ -8,6 +8,10 @@ from enum import Enum
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 class ExecutionMode(Enum):
@@ -62,11 +66,12 @@ class FaceRecognitionConfig:
 class LivenessDetectionConfig:
     """Liveness challenge settings."""
     model_dir: str = "models"
-    timeout_per_challenge_sec: int = 10
+    timeout_per_challenge_sec: int = 20
     max_attempts_per_session: int = 3
     required_head_turn_degrees: int = 15
     required_blink_count: int = 2
     head_pose_confidence_threshold: float = 0.50
+    num_challenges: int = 1
 
 
 @dataclass
@@ -115,6 +120,13 @@ class CloudInterfaceConfig:
     offline_queue_dir: str = "data/event_queue"
     retry_max_attempts: int = 5
     retry_backoff_sec: int = 2
+    # Telemetry verbosity level:
+    # 1 = start, progress, result (verbose)
+    # 2 = start and result (default)
+    # 3 = only result (minimal)
+    telemetry_level: int = 3
+    # Cloud comms mock mode override (set True for dev/testing)
+    mock_mode: bool = False
 
 
 @dataclass
@@ -180,10 +192,6 @@ class Config:
 
         # Azure IoT Hub
         self._azure_connection_string = os.getenv("AZURE_IOT_CONNECTION_STRING")
-
-        # Logging
-        if log_level := os.getenv("LOG_LEVEL"):
-            self.logger.log_level = log_level
 
         # Model directories
         if model_dir := os.getenv("MODEL_DIR"):

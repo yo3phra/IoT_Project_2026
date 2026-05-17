@@ -114,11 +114,11 @@ Mobile App ←→ Cloud Backend ←→ Azure IoT Hub ←→ Coral
 
 ## Security Model
 
-✓ Encrypted embeddings at rest (AES-256-GCM)   (TODO: confirm if works)
-✓ No raw face images stored  
-✓ Sanitized logging (no biometric payloads)  
-✓ No cloud transmission of biometrics  
-✓ PBKDF2-based secure key derivation
+Encrypted embeddings at rest (AES-256-GCM)   (TODO: confirm if works)
+No raw face images stored  
+Sanitized logging (no biometric payloads)  
+No cloud transmission of biometrics  
+PBKDF2-based secure key derivation
 
 ## Admin Interface
 
