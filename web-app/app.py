@@ -1,12 +1,14 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from azure.cosmos import CosmosClient
-import random, time, os
+import random, time, os, requests
 
 app = Flask(__name__)
 
 COSMOS_CONNECTION_STRING = os.environ.get("COSMOS_CONNECTION_STRING")
 COSMOS_DATABASE  = "bicycle-db"
 COSMOS_CONTAINER = "sensor-data"
+
+BRIDGE_URL = os.environ.get("BRIDGE_URL", "http://localhost:5001")
 
 try:
     cosmos_client    = CosmosClient.from_connection_string(COSMOS_CONNECTION_STRING)
@@ -92,5 +94,33 @@ def api_latest():
 def api_history():
     return jsonify(get_history())
 
+@app.route("/api/mode", methods=["POST"])
+def api_set_mode():
+    data = request.json or {}
+    mode = data.get("mode", "").lower()
+
+    if mode not in ["parked", "cruising"]:
+        return jsonify({"error": "Invalid mode. Use 'parked' or 'cruising'."}), 400
+
+    try:
+        response = requests.post(
+            f"{BRIDGE_URL}/wifi_mode",
+            json={"mode": mode},
+            timeout=5
+        )
+
+        return jsonify({
+            "status": "sent_to_bridge",
+            "mode": mode,
+            "bridge_status": response.status_code,
+            "bridge_response": response.json()
+        }), response.status_code
+
+    except Exception as e:
+        return jsonify({
+            "error": "Could not reach bridge",
+            "details": str(e)
+        }), 500
+        
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
